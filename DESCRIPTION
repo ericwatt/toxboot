@@ -1,0 +1,33 @@
+Package: toxboot
+Type: Package
+Title: Bootstrap Methods for ToxCast High Throughput Screening Data
+Version: 0.1.0
+Date: 2016-07-26
+Authors@R: person(c("Eric", "D."), "Watt",
+                  email = "eric@ericdwatt.com",
+                  role = c("aut", "cre"))
+Description: This package provides methods to use bootstrap resampling to
+    quantify uncertainty in fitting ToxCast concentration response data. Each
+    experimentally measured curve is resampled. Data is stored in memory,
+    written to file, or stored in mysql or mongodb databases. Functions for
+    reading the data and analyzing the output are included.
+License: MIT + file LICENSE
+LazyData: TRUE
+Depends:
+    R (>= 3.2)
+Imports:
+    data.table,
+    rmongodb,
+    tcpl (>= 1.0),
+    DBI,
+    RMySQL
+Suggests:
+    ggplot2,
+    knitr,
+    parallel,
+    rmarkdown,
+    testthat,
+    magrittr,
+    pander
+VignetteBuilder: knitr
+RoxygenNote: 5.0.1
