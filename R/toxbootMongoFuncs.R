@@ -82,6 +82,7 @@ toxbootQueryBuild <- function(...){
 #' @seealso \code{\link{toxboot}}
 #'
 #' @import data.table
+#' @importFrom utils packageVersion
 #' @importFrom rmongodb mongo.is.connected mongo.bson.buffer.create
 #'   mongo.bson.buffer.append.int mongo.bson.buffer.append
 #'   mongo.bson.buffer.append.time mongo.bson.from.buffer mongo.insert

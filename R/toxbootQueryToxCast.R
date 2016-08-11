@@ -21,6 +21,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("cndx", "wllt", "aeid",
 #'
 #' @import data.table
 #' @importFrom tcpl tcplLoadData
+#' @importFrom stats mad
 #'
 #' @export
 toxbootQueryToxCast <- function(aeids){

@@ -65,6 +65,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("logc", "resp", "bmad", 
 #' @importFrom DBI dbConnect dbWriteTable dbDisconnect
 #' @importFrom RMySQL MySQL
 #' @importFrom tcpl tcplFit
+#' @importFrom utils packageVersion write.table
 #' @importFrom rmongodb mongo.is.connected mongo.bson.buffer.create
 #'   mongo.bson.buffer.append.int mongo.bson.buffer.append
 #'   mongo.bson.buffer.append.time mongo.bson.from.buffer mongo.insert

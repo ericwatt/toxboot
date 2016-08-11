@@ -6,7 +6,7 @@
 #and number of rows equal to the number of measured points. For example, a chemical with 6 doses each measured
 #3 times with 1000 boot strap replicates will return at data table with 18 rows and 1000 columns.
 
-if(getRversion() >= "2.15.1")  utils::globalVariables(c("index"))
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("index", "sd", "median"))
 
 
 #' Generates bootstrap samples of dose response data
@@ -26,6 +26,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("index"))
 #'
 #' @import data.table
 #' @importFrom tcpl tcplFit
+#' @importFrom stats mad sd median rnorm rt
 #'
 #' @export
 toxbootReplicates <- function(datchemval,
