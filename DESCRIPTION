@@ -30,6 +30,7 @@ Suggests:
     rmarkdown,
     testthat,
     magrittr,
-    pander
+    pander,
+    covr
 VignetteBuilder: knitr
 RoxygenNote: 5.0.1
