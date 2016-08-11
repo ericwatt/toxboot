@@ -68,12 +68,10 @@ MySQL
 
 Authentication and connection parameters are handled using a MySQL configuration file as recommended by the `RMySQL` package. This file can be used to maintain all of your MySQL parameters, which can then be accessed by name.
 
-    [client]
+    [toxboot]
     user = username
     password = password
     host = website.com
-
-    [toxboot]
     database = dev_toxboot
 
 This package will use the group named `toxboot` for connection parameters.
@@ -98,7 +96,7 @@ dat <- toxbootmc(dat = erl3data,
 ggplot(dat, aes(x = modl_ga, group = m4id)) + 
   stat_ecdf() + 
   theme_bw()
-#> Warning: Removed 306 rows containing non-finite values (stat_ecdf).
+#> Warning: Removed 323 rows containing non-finite values (stat_ecdf).
 ```
 
 ![](README-example_included-1.png)

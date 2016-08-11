@@ -96,12 +96,10 @@ Authentication and connection parameters are handled using a MySQL configuration
 This file can be used to maintain all of your MySQL parameters, which can then be accessed by name.
 
 ```
-[client]
+[toxboot]
 user = username
 password = password
 host = website.com
-
-[toxboot]
 database = dev_toxboot
 ```
 

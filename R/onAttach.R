@@ -4,12 +4,18 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("mongo_host", "DBNS", "u
 
   toxget <- toxbootConfList()
 
-  con <- dbConnect(drv = MySQL(), group = "toxboot")
-  mysql_info <- DBI::dbGetInfo(con)
-  dbDisconnect(con)
-  mysql_host <- mysql_info$host
-  mysql_db   <- mysql_info$dbname
-  mysql_user <- mysql_info$user
+  mysql_host <- "Not Configured"
+  mysql_db   <- "Not Configured"
+  mysql_user <- "Not Configured"
+
+  try({
+    con <- dbConnect(drv = MySQL(), group = "toxboot")
+    mysql_info <- DBI::dbGetInfo(con)
+    dbDisconnect(con)
+    mysql_host <- mysql_info$host
+    mysql_db   <- mysql_info$dbname
+    mysql_user <- mysql_info$user
+  }, silent = TRUE)
 
   packageStartupMessage("toxboot ", as.character(utils::packageVersion("toxboot")),
                         "\nMongoDB settings (?toxbootConf):\n  ",
