@@ -1,4 +1,6 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+[![Travis-CI Build Status](https://travis-ci.org/ericwatt/toxboot.svg?branch=master)](https://travis-ci.org/ericwatt/toxboot)
+
 toxboot
 =======
 
@@ -96,7 +98,7 @@ dat <- toxbootmc(dat = erl3data,
 ggplot(dat, aes(x = modl_ga, group = m4id)) + 
   stat_ecdf() + 
   theme_bw()
-#> Warning: Removed 281 rows containing non-finite values (stat_ecdf).
+#> Warning: Removed 300 rows containing non-finite values (stat_ecdf).
 ```
 
 ![](README-example_included-1.png)
