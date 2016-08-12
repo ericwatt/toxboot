@@ -1,5 +1,5 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-[![Travis-CI Build Status](https://travis-ci.org/ericwatt/toxboot.svg?branch=master)](https://travis-ci.org/ericwatt/toxboot) [![Coverage Status](https://img.shields.io/codecov/c/github/ericwatt/toxboot/master.svg)](https://codecov.io/github/ericwatt/toxboot?branch=master) [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/toxboot)](https://cran.r-project.org/package=toxboot)
+[![Travis-CI Build Status](https://travis-ci.org/ericwatt/toxboot.svg?branch=master)](https://travis-ci.org/ericwatt/toxboot) [![Coverage Status](https://img.shields.io/codecov/c/github/ericwatt/toxboot/master.svg)](https://codecov.io/github/ericwatt/toxboot?branch=master) [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/toxboot)](https://cran.r-project.org/package=toxboot) [![DOI](https://zenodo.org/badge/18526/ericwatt/toxboot.svg)](https://zenodo.org/badge/latestdoi/18526/ericwatt/toxboot)
 
 toxboot
 =======
@@ -96,7 +96,7 @@ dat <- toxbootmc(dat = erl3data,
 ggplot(dat, aes(x = modl_ga, group = m4id)) + 
   stat_ecdf() + 
   theme_bw()
-#> Warning: Removed 323 rows containing non-finite values (stat_ecdf).
+#> Warning: Removed 310 rows containing non-finite values (stat_ecdf).
 ```
 
 ![](README-example_included-1.png)

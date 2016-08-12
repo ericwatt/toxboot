@@ -9,6 +9,7 @@ output:
 [![Travis-CI Build Status](https://travis-ci.org/ericwatt/toxboot.svg?branch=master)](https://travis-ci.org/ericwatt/toxboot)
 [![Coverage Status](https://img.shields.io/codecov/c/github/ericwatt/toxboot/master.svg)](https://codecov.io/github/ericwatt/toxboot?branch=master)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/toxboot)](https://cran.r-project.org/package=toxboot)
+[![DOI](https://zenodo.org/badge/18526/ericwatt/toxboot.svg)](https://zenodo.org/badge/latestdoi/18526/ericwatt/toxboot)
 
 ```{r, echo = FALSE, message = FALSE}
 knitr::opts_chunk$set(
