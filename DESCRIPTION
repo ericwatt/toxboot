@@ -1,6 +1,6 @@
 Package: toxboot
 Type: Package
-Title: Bootstrap Methods for ToxCast High Throughput Screening Data
+Title: Bootstrap Methods for 'ToxCast' High Throughput Screening Data
 Version: 0.1.0
 Date: 2016-08-11
 Authors@R: person(c("Eric", "D."), "Watt",
@@ -9,8 +9,8 @@ Authors@R: person(c("Eric", "D."), "Watt",
 URL: https://github.com/ericwatt/toxboot
 BugReports: https://github.com/ericwatt/toxboot/issues
 Description: Provides methods to use bootstrapping to quantify uncertainty
-    in fitting ToxCast concentration response data. Data is stored in memory,
-    written to file, or stored in MySQL or MongoDB databases.
+    in fitting 'ToxCast' concentration response data. Data is stored in memory,
+    written to file, or stored in 'MySQL' or 'MongoDB' databases.
 License: MIT + file LICENSE
 LazyData: TRUE
 Depends:
