@@ -1,20 +1,13 @@
-## Resubmission
-This is a resubmission. In this version I have:
-
-* Added single quotes to software names in the DESCRIPTION
-
 ## Test environments
-* local OS X install, R 3.2.3 & R 3.3.1
-* ubuntu 12.04.5 (on travis-ci), R 3.3.1
+* local OS X install, R 3.3.1
+* ubuntu 12.04.5 (on travis-ci), R 3.3.1, R 3.2.5, R-devel
 * win-builder (devel)
 
 ## R CMD check results
 
-0 errors | 0 warnings | 1 note
-
-* This is a new release.
+0 errors | 0 warnings | 0 notes
 
 ## Reverse dependencies
 
-This is a new release, so there are no reverse dependencies.
+There are no reverse dependencies.
 
