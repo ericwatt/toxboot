@@ -39,9 +39,26 @@ toxbootmc <- function(dat,
                       cores = 1L,
                       destination = "memory",
                       ...){
-  if (!(destination %in% c("mongo", "mysql", "file", "memory"))){
+
+  # Check that correct packages are loaded for a given destination value
+
+  if (destination == "mongo"){
+    if (!requireNamespace("rmongodb", quietly = TRUE)) {
+      stop("rmongodb needed to use destination 'mongo'. Please install it.",
+           call. = FALSE)
+    }
+  } else if (destination == "mysql"){
+    if (!requireNamespace("RMySQL", quietly = TRUE)) {
+      if (!requireNamespace("DBI", quietly = TRUE)) {
+        stop("RMySQL and DBI needed to use destination 'mysql'.
+             Please install them.",
+             call. = FALSE)
+      }
+    }
+  } else if (!(destination %in% c("file", "memory"))){
     stop("value of destination not recognized")
   }
+
   if (is.null(m4ids)) m4ids <- unique(dat[, m4id])
   if (filter & destination == "mongo"){ #remove m4ids already run
     try({

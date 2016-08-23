@@ -13,9 +13,6 @@
 #'   writing and reading results. All other parameters will be passed as values
 #'   to select on.
 #'
-#' @importFrom DBI dbConnect dbSendQuery dbDisconnect dbFetch dbClearResult
-#'   dbDisconnect
-#' @importFrom RMySQL MySQL
 #' @import data.table
 #'
 #' @examples
@@ -34,7 +31,16 @@
 #'
 #' @export
 toxbootGetMySQLFields <- function(fields = '*', table = "toxboot", ...){
-  con <- dbConnect(drv = MySQL(), group = "toxboot")
+
+  if (!requireNamespace("RMySQL", quietly = TRUE)) {
+    if (!requireNamespace("DBI", quietly = TRUE)) {
+      stop("RMySQL and DBI needed to use this function.
+             Please install them.",
+           call. = FALSE)
+    }
+  }
+
+  con <- DBI::dbConnect(drv = RMySQL::MySQL(), group = "toxboot")
   columns <- paste(fields, collapse = ", ")
   query_list <- list(...)
   query <- paste('SELECT ', columns, ' FROM ', table, sep = "")
@@ -52,10 +58,10 @@ toxbootGetMySQLFields <- function(fields = '*', table = "toxboot", ...){
     query_selection <- paste(query_sel_list, collapse = " AND ")
     query <- paste(c(query, query_selection), collapse = " WHERE ")
   }
-  res <- dbSendQuery(con, query)
-  dat_toxboot <- data.table(dbFetch(res, n = -1))
-  dbClearResult(res)
-  dbDisconnect(con)
+  res <- DBI::dbSendQuery(con, query)
+  dat_toxboot <- data.table(DBI::dbFetch(res, n = -1))
+  DBI::dbClearResult(res)
+  DBI::dbDisconnect(con)
 
   return(dat_toxboot)
 }

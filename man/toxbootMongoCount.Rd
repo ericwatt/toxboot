@@ -4,7 +4,7 @@
 \alias{toxbootMongoCount}
 \title{Get number of documents that match query.}
 \usage{
-toxbootMongoCount(mongo, query = mongo.bson.empty())
+toxbootMongoCount(mongo, query = NULL)
 }
 \arguments{
 \item{mongo, }{a mongo connection object returned from

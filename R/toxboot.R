@@ -62,13 +62,8 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("logc", "resp", "bmad", 
 #' @seealso \code{\link{toxbootReplicates}}
 #'
 #' @import data.table
-#' @importFrom DBI dbConnect dbWriteTable dbDisconnect
-#' @importFrom RMySQL MySQL
 #' @importFrom tcpl tcplFit
 #' @importFrom utils packageVersion write.table
-#' @importFrom rmongodb mongo.is.connected mongo.bson.buffer.create
-#'   mongo.bson.buffer.append.int mongo.bson.buffer.append
-#'   mongo.bson.buffer.append.time mongo.bson.from.buffer mongo.insert
 #'
 #' @export
 toxboot <- function(dat,
@@ -78,9 +73,24 @@ toxboot <- function(dat,
                     concvals = F,
                     destination = "memory"
                     ){
-  if (!(destination %in% c("mongo", "mysql", "file", "memory"))){
+
+  if (destination == "mongo"){
+    if (!requireNamespace("rmongodb", quietly = TRUE)) {
+      stop("rmongodb needed to use destination 'mongo'. Please install it.",
+           call. = FALSE)
+    }
+  } else if (destination == "mysql"){
+    if (!requireNamespace("RMySQL", quietly = TRUE)) {
+      if (!requireNamespace("DBI", quietly = TRUE)) {
+        stop("RMySQL and DBI needed to use destination 'mysql'.
+             Please install them.",
+             call. = FALSE)
+      }
+    }
+  } else if (!(destination %in% c("file", "memory"))){
     stop("value of destination not recognized")
   }
+
   starttime <- Sys.time()
 
   this_m4id <- m4id
@@ -155,13 +165,13 @@ toxboot <- function(dat,
                           concvals = concvals,
                           toxboot_version = as.character(packageVersion("toxboot")),
                           bmad = datchemval$bmad[1])]
-    con <- dbConnect(drv = MySQL(), group = "toxboot")
-    dbWriteTable(con,
-                 name="toxboot",
-                 value=datchemresult,
-                 row.names=FALSE,
-                 append = TRUE)
-    dbDisconnect(con)
+    con <- DBI::dbConnect(drv = RMySQL::MySQL(), group = "toxboot")
+    DBI::dbWriteTable(con,
+                      name="toxboot",
+                      value=datchemresult,
+                      row.names=FALSE,
+                      append = TRUE)
+    DBI::dbDisconnect(con)
   } else cat("Uh, how did this happen?")
 
 }

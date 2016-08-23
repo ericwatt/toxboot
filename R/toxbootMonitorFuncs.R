@@ -9,14 +9,19 @@
 #'
 #' @return num_results, an integer equal to the number of documents that match the query.
 #'
-#' @importFrom rmongodb mongo.count mongo.bson.empty
-#'
 #' @export
-toxbootMongoCount <- function(mongo, query = mongo.bson.empty()){
+toxbootMongoCount <- function(mongo, query = NULL){
 
-  num_results <- mongo.count(mongo = mongo,
-                             ns = toxbootConfList()$TOXBOOT_DBNS,
-                             query = query)
+  if (!requireNamespace("rmongodb", quietly = TRUE)) {
+    stop("rmongodb needed to connect to MongoDB. Please install it.",
+         call. = FALSE)
+  }
+
+  if (is.null(query)) query <- rmongodb::mongo.bson.empty()
+
+  num_results <- rmongodb::mongo.count(mongo = mongo,
+                                       ns = toxbootConfList()$TOXBOOT_DBNS,
+                                       query = query)
 
   return(num_results)
 

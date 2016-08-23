@@ -1,8 +1,8 @@
 Package: toxboot
 Type: Package
 Title: Bootstrap Methods for 'ToxCast' High Throughput Screening Data
-Version: 0.1.0.9000
-Date: 2016-08-11
+Version: 0.1.0.9001
+Date: 2016-08-23
 Authors@R: person(c("Eric", "D."), "Watt",
                   email = "eric@ericdwatt.com",
                   role = c("aut", "cre"))
@@ -17,11 +17,11 @@ Depends:
     R (>= 3.2)
 Imports:
     data.table,
-    rmongodb,
     tcpl (>= 1.0),
-    DBI,
-    RMySQL
 Suggests:
+    DBI,
+    RMySQL,
+    rmongodb,
     ggplot2,
     knitr,
     parallel,

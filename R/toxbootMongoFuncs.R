@@ -3,9 +3,12 @@
 #' \code{toxbootConnectMongo} imports toxboot options and creates the connection to the mongoDB.
 #'
 #' @return mongo, a mongo connection object.
-#'
-#' @importFrom rmongodb mongo.create mongo.is.connected
 toxbootConnectMongo <- function(){
+
+  if (!requireNamespace("rmongodb", quietly = TRUE)) {
+    stop("rmongodb needed to connecto to MongoDB. Please install it.",
+         call. = FALSE)
+  }
 
   #Connect to database, confirm connection
   toxget <- toxbootConfList(show.pass = TRUE)
@@ -14,11 +17,11 @@ toxbootConnectMongo <- function(){
   user <- toxget$TOXBOOT_USER
   pass <- toxget$TOXBOOT_PASS
   toxdb <- toxget$TOXBOOT_DB
-  mongo <- mongo.create(host = mongo_host,
-                        username = user,
-                        password = pass,
-                        db = toxdb)
-  if(!mongo.is.connected(mongo)){
+  mongo <- rmongodb::mongo.create(host = mongo_host,
+                                  username = user,
+                                  password = pass,
+                                  db = toxdb)
+  if(!rmongodb::mongo.is.connected(mongo)){
     stop("Connection to mongoDB not established.
          Check your toxbootConf settings.
          See ?toxbootConf for more information.")
@@ -34,23 +37,24 @@ toxbootConnectMongo <- function(){
 #' @param ...  parameters to query on. Format is query_field = query_values
 #'
 #' @return query, a mongo.bson object used for a query
-#'
-#' @importFrom rmongodb mongo.bson.buffer.create mongo.bson.buffer.append.list
-#'   mongo.bson.from.buffer
 toxbootQueryBuild <- function(...){
 
+  if (!requireNamespace("rmongodb", quietly = TRUE)) {
+    stop("rmongodb needed to connecto to MongoDB. Please install it.",
+         call. = FALSE)
+  }
+
   #Build the query to select documents
-  query <- mongo.bson.buffer.create()
+  query <- rmongodb::mongo.bson.buffer.create()
   morequery <- list(...)
   for(i in 1:length(morequery)){
-    mongo.bson.buffer.append.list(query,
-                                  names(morequery[i]),
-                                  list("$in" = as.list(unname(unlist(morequery[i])))))
+    rmongodb::mongo.bson.buffer.append.list(query,
+                                            names(morequery[i]),
+                                            list("$in" = as.list(unname(unlist(morequery[i])))))
   }
-  query <- mongo.bson.from.buffer(query)
+  query <- rmongodb::mongo.bson.from.buffer(query)
 
   return(query)
-
 }
 
 #' Write bootstrap results to mongoDB
@@ -83,9 +87,6 @@ toxbootQueryBuild <- function(...){
 #'
 #' @import data.table
 #' @importFrom utils packageVersion
-#' @importFrom rmongodb mongo.is.connected mongo.bson.buffer.create
-#'   mongo.bson.buffer.append.int mongo.bson.buffer.append
-#'   mongo.bson.buffer.append.time mongo.bson.from.buffer mongo.insert
 #'
 #' @export
 toxbootWriteMongo <- function(dat,
@@ -98,10 +99,14 @@ toxbootWriteMongo <- function(dat,
                     datchemresult,
                     datsample){
 
+  if (!requireNamespace("rmongodb", quietly = TRUE)) {
+    stop("rmongodb needed to connecto to MongoDB. Please install it.",
+         call. = FALSE)
+  }
 
   #insert into database
   mongo <- toxbootConnectMongo()
-  if(mongo.is.connected(mongo)){
+  if(rmongodb::mongo.is.connected(mongo)){
     #create buffer to put into mongo
     m3id_vect <- dat[m4id == this_m4id, m3id]
     resp_vect <- dat[m4id == this_m4id, resp]
@@ -109,32 +114,32 @@ toxbootWriteMongo <- function(dat,
     spid <- unique(dat[m4id == this_m4id, spid])
     aeid <- unique(dat[m4id == this_m4id, aeid])
     bmad <- unique(dat[m4id == this_m4id, bmad])
-    buf <- mongo.bson.buffer.create()
-    mongo.bson.buffer.append.int(buf, "aeid", aeid)
-    mongo.bson.buffer.append.int(buf, "bmad", bmad)
-    mongo.bson.buffer.append(buf, "boot_type", boot_method)
-    mongo.bson.buffer.append(buf, "spid", spid)
-    mongo.bson.buffer.append(buf, "m4id", this_m4id)
-    mongo.bson.buffer.append.int(buf, "replicates", replicates)
-    mongo.bson.buffer.append.time(buf, "started", starttime)
-    mongo.bson.buffer.append.time(buf, "modified", Sys.time())
-    mongo.bson.buffer.append(buf, "toxboot_version", as.character(packageVersion("toxboot")))
-    mongo.bson.buffer.append(buf, "logc_vect", logc_vect)
-    mongo.bson.buffer.append(buf, "m3id_vect", m3id_vect)
-    mongo.bson.buffer.append(buf, "resp_vect", resp_vect)
-    mongo.bson.buffer.append(buf, "conc_vect", conc_vect)
-    mongo.bson.buffer.append(buf, "concvals", concvals)
+    buf <- rmongodb::mongo.bson.buffer.create()
+    rmongodb::mongo.bson.buffer.append.int(buf, "aeid", aeid)
+    rmongodb::mongo.bson.buffer.append.int(buf, "bmad", bmad)
+    rmongodb::mongo.bson.buffer.append(buf, "boot_type", boot_method)
+    rmongodb::mongo.bson.buffer.append(buf, "spid", spid)
+    rmongodb::mongo.bson.buffer.append(buf, "m4id", this_m4id)
+    rmongodb::mongo.bson.buffer.append.int(buf, "replicates", replicates)
+    rmongodb::mongo.bson.buffer.append.time(buf, "started", starttime)
+    rmongodb::mongo.bson.buffer.append.time(buf, "modified", Sys.time())
+    rmongodb::mongo.bson.buffer.append(buf, "toxboot_version", as.character(packageVersion("toxboot")))
+    rmongodb::mongo.bson.buffer.append(buf, "logc_vect", logc_vect)
+    rmongodb::mongo.bson.buffer.append(buf, "m3id_vect", m3id_vect)
+    rmongodb::mongo.bson.buffer.append(buf, "resp_vect", resp_vect)
+    rmongodb::mongo.bson.buffer.append(buf, "conc_vect", conc_vect)
+    rmongodb::mongo.bson.buffer.append(buf, "concvals", concvals)
     for (i in 1:length(fitpars)){
-      mongo.bson.buffer.append(buf, fitpars[i], datchemresult[, get(fitpars[i])])
+      rmongodb::mongo.bson.buffer.append(buf, fitpars[i], datchemresult[, get(fitpars[i])])
     }
     if(concvals == T){
       concnames <- names(datsample)
       for (i in 1:length(concnames)){
-        mongo.bson.buffer.append(buf, concnames[i], datsample[, get(concnames[i])])
+        rmongodb::mongo.bson.buffer.append(buf, concnames[i], datsample[, get(concnames[i])])
       }
     }
-    b <- mongo.bson.from.buffer(buf)
-    mongo.insert(mongo, toxbootConfList()$TOXBOOT_DBNS, b)
+    b <- rmongodb::mongo.bson.from.buffer(buf)
+    rmongodb::mongo.insert(mongo, toxbootConfList()$TOXBOOT_DBNS, b)
   }
 }
 
@@ -159,11 +164,13 @@ toxbootWriteMongo <- function(dat,
 #' fields = c("hill_ga", "gnls_ga"))
 #' }
 #'
-#' @importFrom rmongodb mongo.find.all mongo.bson.buffer.create
-#'   mongo.bson.buffer.append.list mongo.count mongo.destroy
-#'
 #' @export
 toxbootGetMongoFields <- function(fields, ...){
+
+  if (!requireNamespace("rmongodb", quietly = TRUE)) {
+    stop("rmongodb needed to connecto to MongoDB. Please install it.",
+         call. = FALSE)
+  }
 
   mongo <- toxbootConnectMongo()
   query <- toxbootQueryBuild(...)
@@ -175,10 +182,13 @@ toxbootGetMongoFields <- function(fields, ...){
   }
 
   #Get the results, convert them to a data.table
-  result_list <- mongo.find.all(mongo = mongo, ns = toxbootConfList()$TOXBOOT_DBNS, query = query, fields = projection)
+  result_list <- rmongodb::mongo.find.all(mongo = mongo,
+                                          ns = toxbootConfList()$TOXBOOT_DBNS,
+                                          query = query,
+                                          fields = projection)
   result_df <- list()
 
-  mongo.destroy(mongo)
+  rmongodb::mongo.destroy(mongo)
 
   for (i in 1:length(result_list)){
     numnull <- sum(unlist(lapply(result_list[[i]], anynulls)))
