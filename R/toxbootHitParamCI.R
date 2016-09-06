@@ -87,6 +87,6 @@ toxbootHitParamCI <- function(dat_db, dat_pipe){
   dat_boot[boot_hitc==1L & modl == "hill", modl_gw := hill_gw]
   dat_boot[boot_hitc==1L & modl == "gnls", modl_gw := gnls_gw]
 
-  return(dat_boot)
+  return(dat_boot[])
 
 }

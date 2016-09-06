@@ -42,5 +42,5 @@ toxbootQueryToxCast <- function(aeids){
   #remove unwanted columns before returning
   dat[, cndx := NULL]
   dat[, wllt := NULL]
-  return(dat)
+  return(dat[])
 }

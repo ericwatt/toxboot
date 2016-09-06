@@ -63,5 +63,5 @@ toxbootGetMySQLFields <- function(fields = '*', table = "toxboot", ...){
   DBI::dbClearResult(res)
   DBI::dbDisconnect(con)
 
-  return(dat_toxboot)
+  return(dat_toxboot[])
 }

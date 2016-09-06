@@ -136,7 +136,7 @@ toxboot <- function(dat,
                           concvals = concvals,
                           toxboot_version = as.character(packageVersion("toxboot")),
                           bmad = datchemval$bmad[1])]
-    return(datchemresult)
+    return(datchemresult[])
 
   } else if (destination == "file"){
     datchemresult[, `:=` (m4id = this_m4id,
@@ -167,9 +167,9 @@ toxboot <- function(dat,
                           bmad = datchemval$bmad[1])]
     con <- DBI::dbConnect(drv = RMySQL::MySQL(), group = "toxboot")
     DBI::dbWriteTable(con,
-                      name="toxboot",
-                      value=datchemresult,
-                      row.names=FALSE,
+                      name = "toxboot",
+                      value = datchemresult,
+                      row.names = FALSE,
                       append = TRUE)
     DBI::dbDisconnect(con)
   } else cat("Uh, how did this happen?")
