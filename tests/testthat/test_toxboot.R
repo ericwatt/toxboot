@@ -31,7 +31,7 @@ test_that("toxboot returns correct object", {
   expect_true("modl_ga"   %in% names(dat_hit))
   expect_true("modl_tp"   %in% names(dat_hit))
   expect_equal(dim(dat_hit)[1], 50)
-  expect_equal(dim(dat_hit)[2], 59)
+  expect_equal(dim(dat_hit)[2], 61)
   expect_type(dat_hit[, coff],      "double")
   expect_type(dat_hit[, maic],      "double")
   expect_type(dat_hit[, modl],      "character")

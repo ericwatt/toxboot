@@ -15,7 +15,11 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("m4id",
                                                         "gnls_ga",
                                                         "modl_gw",
                                                         "hill_gw",
-                                                        "gnls_gw"))
+                                                        "gnls_gw",
+                                                        "modl_la",
+                                                        "modl_lw",
+                                                        "gnls_lw",
+                                                        "gnls_la"))
 
 
 #' Performs Hit Call and Model Winner Selection on Bootstrap Results
@@ -45,7 +49,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("m4id",
 #'
 #' @return dat_boot, a data.table equivalent to dat_db with added columns coff
 #'   (from dat_pipe), maic (winning model aic), modl (winning model), boot_hitc,
-#'   modl_ga, modl_gw, and modl_tp
+#'   modl_ga, modl_gw, modl_la, modl_lw, and modl_tp
 #'
 #' @import data.table
 #'
@@ -80,12 +84,16 @@ toxbootHitParamCI <- function(dat_db, dat_pipe){
   dat_boot[, modl_ga := NA_real_]
   dat_boot[, modl_tp := NA_real_]
   dat_boot[, modl_gw := NA_real_]
-  dat_boot[boot_hitc==1L & modl == "hill", modl_ga := hill_ga]
-  dat_boot[boot_hitc==1L & modl == "gnls", modl_ga := gnls_ga]
-  dat_boot[boot_hitc==1L & modl == "hill", modl_tp := hill_tp]
-  dat_boot[boot_hitc==1L & modl == "gnls", modl_tp := gnls_tp]
-  dat_boot[boot_hitc==1L & modl == "hill", modl_gw := hill_gw]
-  dat_boot[boot_hitc==1L & modl == "gnls", modl_gw := gnls_gw]
+  dat_boot[, modl_la := NA_real_]
+  dat_boot[, modl_lw := NA_real_]
+  dat_boot[boot_hitc==1L & modl == "hill", `:=` (modl_ga = hill_ga,
+                                                 modl_tp = hill_tp,
+                                                 modl_gw = hill_gw)]
+  dat_boot[boot_hitc==1L & modl == "gnls", `:=` (modl_ga = gnls_ga,
+                                                 modl_tp = gnls_tp,
+                                                 modl_gw = gnls_gw,
+                                                 modl_lw = gnls_lw,
+                                                 modl_la = gnls_la)]
 
   return(dat_boot[])
 
