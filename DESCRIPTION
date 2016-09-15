@@ -21,7 +21,7 @@ Imports:
 Suggests:
     DBI,
     RMySQL,
-    rmongodb,
+    mongolite,
     ggplot2,
     knitr,
     parallel,
