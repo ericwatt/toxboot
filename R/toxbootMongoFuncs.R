@@ -1,28 +1,61 @@
 #' Setup connection to toxboot MongoDB
 #'
-#' \code{toxbootConnectMongo} imports toxboot options and creates the connection to the mongoDB.
+#' \code{toxbootConnectMongo} imports toxboot options and creates the connection
+#' to the mongoDB.
 #'
 #' @return mongo, a mongo connection object.
 toxbootConnectMongo <- function(){
 
-  if (!requireNamespace("rmongodb", quietly = TRUE)) {
-    stop("rmongodb needed to connecto to MongoDB. Please install it.",
+  if (!requireNamespace("mongolite", quietly = TRUE)) {
+    stop("mongolite needed to connect to MongoDB. Please install it.",
          call. = FALSE)
   }
 
   #Connect to database, confirm connection
   toxget <- toxbootConfList(show.pass = TRUE)
   mongo_host <- toxget$TOXBOOT_HOST
-  DBNS <- toxget$TOXBOOT_DBNS
+  collection <- toxget$TOXBOOT_COLLECTION
   user <- toxget$TOXBOOT_USER
   pass <- toxget$TOXBOOT_PASS
   toxdb <- toxget$TOXBOOT_DB
-  mongo <- rmongodb::mongo.create(host = mongo_host,
-                                  username = user,
-                                  password = pass,
-                                  db = toxdb)
-  if(!rmongodb::mongo.is.connected(mongo)){
-    stop("Connection to mongoDB not established.
+  port <- toxget$TOXBOOT_PORT
+
+  mongo <- tryCatch(
+    {
+      mongolite::mongo(collection,
+                       url = paste0("mongodb://",
+                                    user,
+                                    ":",
+                                    pass,
+                                    "@",
+                                    mongo_host,
+                                    ":",
+                                    port,
+                                    "/",
+                                    toxdb))
+    },
+    error = function(cond) {
+      message("There was trouble connecting to MongoDB")
+      message("Here's the original error message:")
+      message(cond)
+      message("\n")
+      # Choose a return value in case of error
+      return(NA)
+    },
+    warning = function(cond) {
+      message("There was trouble connecting to MongoDB")
+      message("Here's the original warning message:")
+      message(cond)
+      message("\n")
+      # Choose a return value in case of warning
+      return(NA)
+    },
+    finally = NA
+  )
+
+
+  if(is.na(mongo)){
+    stop("Connection to MongoDB not established.
          Check your toxbootConf settings.
          See ?toxbootConf for more information.")
   }
