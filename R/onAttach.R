@@ -1,4 +1,7 @@
-if(getRversion() >= "2.15.1")  utils::globalVariables(c("mongo_host", "DBNS", "user", "pass", "db"))
+if(getRversion() >= "2.15.1"){
+  utils::globalVariables(c("mongo_host", "collection", "user",
+                           "pass", "db", "port"))
+}
 
 .onAttach <- function(libname, pkgname) {
 
