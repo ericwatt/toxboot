@@ -22,6 +22,7 @@ Suggests:
     DBI,
     RMySQL,
     mongolite,
+    jsonlite,
     ggplot2,
     knitr,
     parallel,
