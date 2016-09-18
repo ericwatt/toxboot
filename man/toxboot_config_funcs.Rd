@@ -9,8 +9,8 @@
 \alias{toxbootConfSave}
 \title{Functions for configuring the toxboot package}
 \usage{
-toxbootConf(mongo_host = NULL, DBNS = NULL, user = NULL, pass = NULL,
-  db = NULL)
+toxbootConf(mongo_host = NULL, collection = NULL, user = NULL,
+  pass = NULL, db = NULL, port = NULL)
 
 toxbootConfSave()
 
@@ -23,8 +23,8 @@ toxbootConfList(show.pass = FALSE)
 \arguments{
 \item{mongo_host}{Character of length 1, database IP address}
 
-\item{DBNS}{Character of length 1, the collection on the database to read
-from and write to}
+\item{collection}{Character of length 1, the collection on the database to
+read from and write to}
 
 \item{user}{Character of length 1, username to authenticate}
 
@@ -32,6 +32,9 @@ from and write to}
 
 \item{db}{Character of length 1, database where the username and pass are
 authenicated. Can be an IP address or a url.}
+
+\item{port}{Character of length 1, the port on mongo_host to connect to
+MongoDB. Typically this is 27017.}
 
 \item{show.pass}{Logical, should the password be returned}
 }
