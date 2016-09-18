@@ -72,20 +72,26 @@ toxbootConnectMongo <- function(){
 #' @return query, a mongo.bson object used for a query
 toxbootQueryBuild <- function(...){
 
-  if (!requireNamespace("rmongodb", quietly = TRUE)) {
-    stop("rmongodb needed to connecto to MongoDB. Please install it.",
+  if (!requireNamespace("mongolite", quietly = TRUE)) {
+    stop("mongolite needed to connect to MongoDB. Please install it.",
+         call. = FALSE)
+  }
+
+  if (!requireNamespace("jsonlite", quietly = TRUE)) {
+    stop("jsonlite needed to construct MongoDB query. Please install it.",
          call. = FALSE)
   }
 
   #Build the query to select documents
-  query <- rmongodb::mongo.bson.buffer.create()
   morequery <- list(...)
-  for(i in 1:length(morequery)){
-    rmongodb::mongo.bson.buffer.append.list(query,
-                                            names(morequery[i]),
-                                            list("$in" = as.list(unname(unlist(morequery[i])))))
+
+  for (i in 1:length(morequery)){
+    if (length(morequery[[i]]) > 1){
+      morequery[[i]] <- list("$in" = morequery[[i]])
+    }
   }
-  query <- rmongodb::mongo.bson.from.buffer(query)
+
+  query <- jsonlite::toJSON(morequery, auto_unbox=TRUE, POSIXt = "mongo")
 
   return(query)
 }
@@ -132,8 +138,8 @@ toxbootWriteMongo <- function(dat,
                     datchemresult,
                     datsample){
 
-  if (!requireNamespace("rmongodb", quietly = TRUE)) {
-    stop("rmongodb needed to connecto to MongoDB. Please install it.",
+  if (!requireNamespace("mongolite", quietly = TRUE)) {
+    stop("mongolite needed to connect to MongoDB. Please install it.",
          call. = FALSE)
   }
 
