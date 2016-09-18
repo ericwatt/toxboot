@@ -143,43 +143,42 @@ toxbootWriteMongo <- function(dat,
          call. = FALSE)
   }
 
-  #insert into database
-  mongo <- toxbootConnectMongo()
-  if(rmongodb::mongo.is.connected(mongo)){
-    #create buffer to put into mongo
-    m3id_vect <- dat[m4id == this_m4id, m3id]
-    resp_vect <- dat[m4id == this_m4id, resp]
-    conc_vect <- dat[m4id == this_m4id, logc]
-    spid <- unique(dat[m4id == this_m4id, spid])
-    aeid <- unique(dat[m4id == this_m4id, aeid])
-    bmad <- unique(dat[m4id == this_m4id, bmad])
-    buf <- rmongodb::mongo.bson.buffer.create()
-    rmongodb::mongo.bson.buffer.append.int(buf, "aeid", aeid)
-    rmongodb::mongo.bson.buffer.append.int(buf, "bmad", bmad)
-    rmongodb::mongo.bson.buffer.append(buf, "boot_type", boot_method)
-    rmongodb::mongo.bson.buffer.append(buf, "spid", spid)
-    rmongodb::mongo.bson.buffer.append(buf, "m4id", this_m4id)
-    rmongodb::mongo.bson.buffer.append.int(buf, "replicates", replicates)
-    rmongodb::mongo.bson.buffer.append.time(buf, "started", starttime)
-    rmongodb::mongo.bson.buffer.append.time(buf, "modified", Sys.time())
-    rmongodb::mongo.bson.buffer.append(buf, "toxboot_version", as.character(packageVersion("toxboot")))
-    rmongodb::mongo.bson.buffer.append(buf, "logc_vect", logc_vect)
-    rmongodb::mongo.bson.buffer.append(buf, "m3id_vect", m3id_vect)
-    rmongodb::mongo.bson.buffer.append(buf, "resp_vect", resp_vect)
-    rmongodb::mongo.bson.buffer.append(buf, "conc_vect", conc_vect)
-    rmongodb::mongo.bson.buffer.append(buf, "concvals", concvals)
-    for (i in 1:length(fitpars)){
-      rmongodb::mongo.bson.buffer.append(buf, fitpars[i], datchemresult[, get(fitpars[i])])
-    }
-    if(concvals == T){
-      concnames <- names(datsample)
-      for (i in 1:length(concnames)){
-        rmongodb::mongo.bson.buffer.append(buf, concnames[i], datsample[, get(concnames[i])])
-      }
-    }
-    b <- rmongodb::mongo.bson.from.buffer(buf)
-    rmongodb::mongo.insert(mongo, toxbootConfList()$TOXBOOT_DBNS, b)
+  if (!requireNamespace("jsonlite", quietly = TRUE)) {
+    stop("jsonlite needed to format data for MongoDB. Please install it.",
+         call. = FALSE)
   }
+
+  #combine data into json format
+
+  list_data <- as.list(datchemresult)
+
+  #add identification fields
+
+  list_data$spid <- unique(dat[m4id == this_m4id, spid])
+  list_data$aeid <- unique(dat[m4id == this_m4id, aeid])
+  list_data$bmad <- unique(dat[m4id == this_m4id, bmad])
+  list_data$boot_method <- boot_method
+  list_data$m4id <- this_m4id
+  list_data$replicates <- replicates
+  list_data$started <- starttime
+  list_data$modified <- Sys.time()
+  list_data$toxboot_version <- as.character(packageVersion("toxboot"))
+  list_data$logc_vect <- logc_vect
+  list_data$m3id_vect <- dat[m4id == this_m4id, m3id]
+  list_data$resp_vect <- dat[m4id == this_m4id, resp]
+  list_data$conc_vect <- dat[m4id == this_m4id, logc]
+  list_data$concvals <- concvals
+
+  if(concvals == T){
+    list_conc <- as.list(datsample)
+    list_data <- c(list_data, list_conc)
+  }
+
+  #insert into database
+
+  mongo <- toxbootConnectMongo()
+  mongo$insert(jsonlite::toJSON(list_data))
+
 }
 
 #' Query mongoDB and get requested fields
