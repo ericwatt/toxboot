@@ -66,7 +66,7 @@ toxbootmc <- function(dat,
   if (is.null(m4ids)) m4ids <- unique(dat[, m4id])
   if (filter & destination == "mongo"){ #remove m4ids already run
     try({
-      old_m4ids <- toxbootGetMongoFields(boot_type = boot_method,
+      old_m4ids <- toxbootGetMongoFields(boot_method = boot_method,
                                          m4id = m4ids,
                                          fields = "m4id")
       m4ids <- m4ids[!(m4ids %in% old_m4ids[, m4id])]
