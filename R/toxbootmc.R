@@ -86,9 +86,10 @@ toxbootmc <- function(dat,
 
 
   Sys.time() - start_time
+
   if (destination == "memory") {
     dat <- rbindlist(boot_table)
     return(dat[])
   }
-  #return(boot_table)
+
 }

@@ -11,6 +11,12 @@ toxbootConnectMongo <- function(){
          call. = FALSE)
   }
 
+  #Set log level to 3 to reduce messages
+
+  mongologval <- mongolite::mongo_log_level()
+
+  mongolite::mongo_log_level(3)
+
   #Connect to database, confirm connection
   toxget <- toxbootConfList(show.pass = TRUE)
   mongo_host <- toxget$TOXBOOT_HOST
@@ -52,6 +58,10 @@ toxbootConnectMongo <- function(){
     },
     finally = NA
   )
+
+  #Set mongo log value back to what it was
+
+  mongolite::mongo_log_level(mongo_log_convert(mongologval))
 
   return(mongo)
 }
@@ -216,8 +226,7 @@ toxbootGetMongoFields <- function(fields, ...){
   num_results <- toxbootMongoCount(mongo = mongo, query = query)
   if(num_results < 1){
     stop("No results returned for query provided specified\n
-         Query:\n",
-         cat(query))
+         Query:\n", query)
   }
 
   result_list <- mongo$iterate(query = query, fields = projection)$batch()
