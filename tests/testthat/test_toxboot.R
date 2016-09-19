@@ -60,19 +60,21 @@ test_that("toxboot writes to and reads from MongoDB", {
              tail(erl5data[hitc == 0L, m4id], 10))
 
   set.seed(1234)
-  dat <- toxbootmc(dat = erl3data,
-                   boot_method = "smooth",
-                   m4ids = m4ids,
-                   cores = 1,
-                   destination = "memory",
-                   replicates = 2)
+  list <- lapply(m4ids,
+                 toxboot,
+                 dat = erl3data,
+                 boot_method = "smooth",
+                 destination = "memory",
+                 replicates = 2)
+  dat <- rbindlist(list)
+
   set.seed(1234)
-  toxbootmc(dat = erl3data,
-            boot_method = "smooth",
-            m4ids = m4ids,
-            cores = 1,
-            destination = "mongo",
-            replicates = 2)
+  lapply(m4ids,
+         toxboot,
+         dat = erl3data,
+         boot_method = "smooth",
+         destination = "mongo",
+         replicates = 2)
 
   dat_fetch <- toxbootGetMongoFields(fields = names(dat),
                                      m4id = unique(dat[, m4id]))
