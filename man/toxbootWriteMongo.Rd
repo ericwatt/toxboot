@@ -40,7 +40,7 @@ written to the database as well.}
 }
 \details{
 The fitted results are assembled
-  into a bson object using \code{rmongodb} and written to the mongoDB.
+  into a json object using \code{jsonlite} and written to the mongoDB.
 }
 \seealso{
 \code{\link{toxboot}}

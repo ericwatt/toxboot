@@ -53,13 +53,6 @@ toxbootConnectMongo <- function(){
     finally = NA
   )
 
-
-  if(is.na(mongo)){
-    stop("Connection to MongoDB not established.
-         Check your toxbootConf settings.
-         See ?toxbootConf for more information.")
-  }
-
   return(mongo)
 }
 
@@ -85,13 +78,16 @@ toxbootQueryBuild <- function(...){
   #Build the query to select documents
   morequery <- list(...)
 
-  for (i in 1:length(morequery)){
-    if (length(morequery[[i]]) > 1){
-      morequery[[i]] <- list("$in" = morequery[[i]])
+  if (length(morequery) > 0){
+    for (i in 1:length(morequery)){
+      if (length(morequery[[i]]) > 1){
+        morequery[[i]] <- list("$in" = morequery[[i]])
+      }
     }
+    query <- jsonlite::toJSON(morequery, auto_unbox = TRUE, POSIXt = "mongo")
+  } else {
+    query <- NULL
   }
-
-  query <- jsonlite::toJSON(morequery, auto_unbox=TRUE, POSIXt = "mongo")
 
   return(query)
 }
@@ -120,7 +116,7 @@ toxbootQueryBuild <- function(...){
 #' @param datsample data.table used if concval = T
 #'
 #' @details The fitted results are assembled
-#'   into a bson object using \code{rmongodb} and written to the mongoDB.
+#'   into a json object using \code{jsonlite} and written to the mongoDB.
 #'
 #' @seealso \code{\link{toxboot}}
 #'
@@ -202,11 +198,13 @@ toxbootWriteMongo <- function(dat,
 #' fields = c("hill_ga", "gnls_ga"))
 #' }
 #'
+#' @import data.table
+#'
 #' @export
 toxbootGetMongoFields <- function(fields, ...){
 
-  if (!requireNamespace("rmongodb", quietly = TRUE)) {
-    stop("rmongodb needed to connecto to MongoDB. Please install it.",
+  if (!requireNamespace("mongolite", quietly = TRUE)) {
+    stop("mongolite needed to connect to MongoDB. Please install it.",
          call. = FALSE)
   }
 
@@ -216,35 +214,48 @@ toxbootGetMongoFields <- function(fields, ...){
 
   num_results <- toxbootMongoCount(mongo = mongo, query = query)
   if(num_results < 1){
-    stop("No results returned for assay, chem, boot_method specified")
+    stop("No results returned for query provided specified\n
+         Query:\n",
+         cat(query))
   }
 
-  #Get the results, convert them to a data.table
-  result_list <- rmongodb::mongo.find.all(mongo = mongo,
-                                          ns = toxbootConfList()$TOXBOOT_DBNS,
-                                          query = query,
-                                          fields = projection)
-  result_df <- list()
+  result_list <- mongo$iterate(query = query, fields = projection)$batch()
 
-  rmongodb::mongo.destroy(mongo)
+  list_df <- vector(mode = "list", length = num_results)
 
   for (i in 1:length(result_list)){
-    numnull <- sum(unlist(lapply(result_list[[i]], anynulls)))
-    result_clean <- NULL
-    result_cleaner <- NULL
-    if(numnull){
-      result_clean <- lapply(result_list[[i]], nullToNA)
-      result_cleaner <- lapply(result_clean, listTonumeric)
-    }else{
-      result_cleaner <- result_list[[i]]
-    }
-    result_df[[i]] <- as.data.frame(result_cleaner)
+    result_clean <- lapply(result_list[[i]], unlist)
+    list_df[[i]] <- as.data.frame(result_clean)
   }
 
+  dat <- rbindlist(list_df, use.names = TRUE, fill = TRUE)
 
-  dat_result <- rbindlist(result_df, use.names=TRUE, fill=TRUE)
+  numeric_cols <- c("resp_max", "resp_min", "max_mean", "max_mean_conc", "max_med",
+                    "max_med_conc", "logc_max", "logc_min", "cnst", "hill", "hcov",
+                    "gnls", "gcov", "cnst_er", "cnst_aic", "cnst_rmse", "hill_tp",
+                    "hill_tp_sd", "hill_ga", "hill_ga_sd", "hill_gw", "hill_gw_sd",
+                    "hill_er", "hill_er_sd", "hill_aic", "hill_rmse", "gnls_tp",
+                    "gnls_tp_sd", "gnls_ga", "gnls_ga_sd", "gnls_gw", "gnls_gw_sd",
+                    "gnls_la", "gnls_la_sd", "gnls_lw", "gnls_lw_sd", "gnls_er",
+                    "gnls_er_sd", "gnls_aic", "gnls_rmse", "nconc", "npts", "nrep",
+                    "nmed_gtbl", "m4id", "replicates", "bmad")
+  char_cols <- c("boot_method", "toxboot_version", "spid")
+  logic_cols <- c("concvals")
+  time_cols <- c("started", "modified")
 
-  return(dat_result)
+  for (j in names(dat)) {
+    if (j %in% char_cols) {
+      set(dat, j = j, value = as.character(dat[[j]]))
+    } else if (j %in% time_cols) {
+      set(dat, j = j, value = as.POSIXct(dat[[j]]))
+    } else if (j %in% logic_cols) {
+      set(dat, j = j, value = as.logical(dat[[j]]))
+    } else {
+      set(dat, j = j, value = as.numeric(dat[[j]]))
+    }
+  }
+
+  return(dat)
 }
 
 #' Build projection for toxboot MongoDB
@@ -270,6 +281,8 @@ toxbootProjectionBuild <- function(fields, id_val = 0L){
   id_val <- list("_id" = id_val)
   select_val <- as.list(rep(1L, length(fields)))
   names(select_val) <- fields
-  projection <- c(id_val, select_val)
+  projection <- jsonlite::toJSON(c(id_val, select_val),
+                                 auto_unbox = TRUE,
+                                 POSIXt = "mongo")
 
 }
