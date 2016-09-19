@@ -65,10 +65,11 @@ After installing `toxboot` you can setup these parameters:
 ```{r toxbootConf_setup, eval = FALSE}
 library(toxboot)
 toxbootConf(mongo_host = "123.45.67.89",
-            db = "bootstrap",
-            DBNS = "bootstrap.prod_external_invitrodb_v2",
+            collection = "prod_external_invitrodb_v2"
             user = "username",
-            pass = "password")
+            pass = "password",
+            db = "bootstrap",
+            port = "27017")
 ```
 
 You can view the current parametes with `toxbootConfList`, save them to the configuration file with `toxbootConfSave`, and load from the configuration file with `toxbootConfLoad`. 
@@ -78,10 +79,11 @@ The configuration file can be reset to the installation defaults of `NA` using `
 toxbootConfList(show.pass = TRUE)
 toxbootConfSave()
 toxbootConf(mongo_host = NA, 
-            DBNS = NA, 
+            collection = NA, 
             user = NA, 
             pass = NA, 
-            db = NA)
+            db = NA,
+            port = NA)
 toxbootConfList(show.pass = TRUE)
 toxbootConfLoad()
 toxbootConfList(show.pass = TRUE)
@@ -113,89 +115,15 @@ Use caution as this will drop the table if it already exists.
 
 Using the included data, and keeping everything in memory, explore the uncertainty in potency for all curves that flagged as active:
 
-```{r example_included}
+```{r example_included, eval = FALSE}
 m4ids <- erl5data[hitc == 1L, m4id]
 dat <- toxbootmc(dat = erl3data, 
                  boot_method = "smooth",
                  m4ids = m4ids,
-                 cores = 8, 
+                 cores = 1, 
                  destination = "memory", 
                  replicates = 100) %>%
   toxbootHitParamCI(erl5data)
-
-ggplot(dat, aes(x = modl_ga, group = m4id)) + 
-  stat_ecdf() + 
-  theme_bw()
-```
-
-Then, plot the bootstrap curves for a single curve (see vignette for code and more examples).
-
-```{r boot_fits, echo = FALSE}
-rep_num <- 50
-xmin <- min(erl3data[m4id == 9057756, logc])
-xmax <- max(erl3data[m4id == 9057756, logc])
-
-dat_boot_curve <- expand.grid(replicate = 1:rep_num,
-                              lconc = seq(xmin,
-                                          xmax,
-                                          length.out = 100)) %>%
-  data.table()
-dat_result <- copy(dat[m4id == 9057756])
-dat_result[, repnum := 1:.N]
-dat_boot_curve <- merge(dat_boot_curve,
-                        dat_result,
-                        by.x = "replicate",
-                        by.y = "repnum")
-dat_boot_curve[modl == "hill", 
-               resp := hill_curve(hill_tp = hill_tp, 
-                                  hill_ga = hill_ga, 
-                                  hill_gw = hill_gw, 
-                                  lconc)]
-dat_boot_curve[modl == "gnls", 
-               resp := gnls_curve(top = gnls_tp, 
-                                  ga = gnls_ga, 
-                                  gw = gnls_gw, 
-                                  la = gnls_la, 
-                                  lw = gnls_lw, 
-                                  lconc)]
-
-hill_ga <- erl5data[m4id == 9057756, hill_ga]
-hill_gw <- erl5data[m4id == 9057756, hill_gw]
-hill_tp <- erl5data[m4id == 9057756, hill_tp]
-gnls_ga <- erl5data[m4id == 9057756, gnls_ga]
-gnls_gw <- erl5data[m4id == 9057756, gnls_gw]
-gnls_tp <- erl5data[m4id == 9057756, gnls_tp]
-gnls_la <- erl5data[m4id == 9057756, gnls_la]
-gnls_lw <- erl5data[m4id == 9057756, gnls_lw]
-
-ggplot(dat_boot_curve, 
-                      aes(x=lconc, 
-                          y=resp,
-                          color = modl)) +
-  geom_line(size = 2,
-            alpha = 0.2,
-            aes(group = replicate)) +
-  geom_point(data = erl3data[m4id == 9057756],
-             aes(x = logc,
-                 y = resp),
-             alpha = 1,
-             size = 5,
-             color = 'black', 
-             fill = 'cyan', 
-             shape=21) +
-  stat_function(fun = hill_curve, 
-                args=list(hill_tp = hill_tp, 
-                          hill_ga = hill_ga, 
-                          hill_gw = hill_gw),
-                alpha = 1,
-                color = "cyan", 
-                size = 1) +
-  scale_color_manual(values = c("hill" = "red", "gnls" = "blue")) +
-  ylab("Percent Activity") +
-  xlab("Log Concentration (uM)") +
-  expand_limits(y = c(120, -40)) +
-  theme_bw() +
-  guides(color=FALSE)
 ```
 
 A real world example pulling from the ToxCast database using MongoDB to store the results would run as the following.
