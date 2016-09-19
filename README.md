@@ -33,7 +33,7 @@ Options for mongo or mysql require some configuration.
 MongoDB
 -------
 
-For bootstrapping a large number of curves, or performing a large number of resamples per curve, the suggested destination is `mongo`. This package uses `rmongodb` as the package to communicate with a Mongo database. Authentication and connection parameters for the MongoDB are managed with `toxbootConf` and related functions. Users of the `tcpl` package will be familiar with these settings.
+For bootstrapping a large number of curves, or performing a large number of resamples per curve, the suggested destination is `mongo`. This package uses `mongolite` as the package to communicate with a Mongo database. Authentication and connection parameters for the MongoDB are managed with `toxbootConf` and related functions. Users of the `tcpl` package will be familiar with these settings.
 
 After installing `toxboot` you can setup these parameters:
 
