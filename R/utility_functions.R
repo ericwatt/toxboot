@@ -1,3 +1,5 @@
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("description", "level"))
+
 #' Replace NULL values with NA.
 #'
 #' \code{nullToNA} is used to convert any NULL values to NA in a list.
