@@ -49,9 +49,7 @@ test_that("toxboot writes to and reads from MongoDB", {
               db = "toxboot",
               port = 33046)
 
-  con <- mongo("toxboot_test",
-               url = "mongodb://toxboot_test:bootstrap@ds033046.mlab.com:33046/toxboot",
-               verbose = FALSE)
+  con <- toxbootConnectMongo()
   if(con$count() > 0)
     con$drop()
   rm(con)
