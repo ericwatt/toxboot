@@ -43,8 +43,12 @@ toxbootmc <- function(dat,
   # Check that correct packages are loaded for a given destination value
 
   if (destination == "mongo"){
-    if (!requireNamespace("rmongodb", quietly = TRUE)) {
-      stop("rmongodb needed to use destination 'mongo'. Please install it.",
+    if (!requireNamespace("mongolite", quietly = TRUE)) {
+      stop("mongolite needed to use destination 'mongo'. Please install it.",
+           call. = FALSE)
+    }
+    if (!requireNamespace("jsonlite", quietly = TRUE)) {
+      stop("jsonlite needed to use destination 'mongo'. Please install it.",
            call. = FALSE)
     }
   } else if (destination == "mysql"){
@@ -62,7 +66,7 @@ toxbootmc <- function(dat,
   if (is.null(m4ids)) m4ids <- unique(dat[, m4id])
   if (filter & destination == "mongo"){ #remove m4ids already run
     try({
-      old_m4ids <- toxbootGetMongoFields(boot_type = boot_method,
+      old_m4ids <- toxbootGetMongoFields(boot_method = boot_method,
                                          m4id = m4ids,
                                          fields = "m4id")
       m4ids <- m4ids[!(m4ids %in% old_m4ids[, m4id])]
@@ -82,9 +86,10 @@ toxbootmc <- function(dat,
 
 
   Sys.time() - start_time
+
   if (destination == "memory") {
     dat <- rbindlist(boot_table)
     return(dat[])
   }
-  #return(boot_table)
+
 }

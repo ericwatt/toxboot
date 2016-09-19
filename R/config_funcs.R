@@ -6,12 +6,14 @@
 #'   interact with the mongoDB database.
 #'
 #' @param mongo_host Character of length 1, database IP address
-#' @param DBNS Character of length 1, the collection on the database to read
-#'   from and write to
+#' @param collection Character of length 1, the collection on the database to
+#'   read from and write to
 #' @param user Character of length 1, username to authenticate
 #' @param pass Character of length 1, password that corresponds to username
 #' @param db Character of length 1, database where the username and pass are
 #'   authenicated. Can be an IP address or a url.
+#' @param port Character of length 1, the port on mongo_host to connect to
+#'   MongoDB. Typically this is 27017.
 #' @param show.pass Logical, should the password be returned
 #'
 #' @details Parameter settings are stored in two places. Long term storage on

@@ -12,16 +12,14 @@
 #' @export
 toxbootMongoCount <- function(mongo, query = NULL){
 
-  if (!requireNamespace("rmongodb", quietly = TRUE)) {
-    stop("rmongodb needed to connect to MongoDB. Please install it.",
+  if (!requireNamespace("mongolite", quietly = TRUE)) {
+    stop("mongolite needed to connect to MongoDB. Please install it.",
          call. = FALSE)
   }
 
-  if (is.null(query)) query <- rmongodb::mongo.bson.empty()
+  if (is.null(query)) query <- '{}'
 
-  num_results <- rmongodb::mongo.count(mongo = mongo,
-                                       ns = toxbootConfList()$TOXBOOT_DBNS,
-                                       query = query)
+  num_results <- mongo$count(query)
 
   return(num_results)
 

@@ -1,31 +1,67 @@
 #' Setup connection to toxboot MongoDB
 #'
-#' \code{toxbootConnectMongo} imports toxboot options and creates the connection to the mongoDB.
+#' \code{toxbootConnectMongo} imports toxboot options and creates the connection
+#' to the mongoDB.
 #'
 #' @return mongo, a mongo connection object.
 toxbootConnectMongo <- function(){
 
-  if (!requireNamespace("rmongodb", quietly = TRUE)) {
-    stop("rmongodb needed to connecto to MongoDB. Please install it.",
+  if (!requireNamespace("mongolite", quietly = TRUE)) {
+    stop("mongolite needed to connect to MongoDB. Please install it.",
          call. = FALSE)
   }
+
+  #Set log level to 3 to reduce messages
+
+  mongologval <- mongolite::mongo_log_level()
+
+  mongolite::mongo_log_level(3)
 
   #Connect to database, confirm connection
   toxget <- toxbootConfList(show.pass = TRUE)
   mongo_host <- toxget$TOXBOOT_HOST
-  DBNS <- toxget$TOXBOOT_DBNS
+  collection <- toxget$TOXBOOT_COLLECTION
   user <- toxget$TOXBOOT_USER
   pass <- toxget$TOXBOOT_PASS
   toxdb <- toxget$TOXBOOT_DB
-  mongo <- rmongodb::mongo.create(host = mongo_host,
-                                  username = user,
-                                  password = pass,
-                                  db = toxdb)
-  if(!rmongodb::mongo.is.connected(mongo)){
-    stop("Connection to mongoDB not established.
-         Check your toxbootConf settings.
-         See ?toxbootConf for more information.")
-  }
+  port <- toxget$TOXBOOT_PORT
+
+  mongo <- tryCatch(
+    {
+      mongolite::mongo(collection,
+                       url = paste0("mongodb://",
+                                    user,
+                                    ":",
+                                    pass,
+                                    "@",
+                                    mongo_host,
+                                    ":",
+                                    port,
+                                    "/",
+                                    toxdb))
+    },
+    error = function(cond) {
+      message("There was trouble connecting to MongoDB")
+      message("Here's the original error message:")
+      message(cond)
+      message("\n")
+      # Choose a return value in case of error
+      return(NA)
+    },
+    warning = function(cond) {
+      message("There was trouble connecting to MongoDB")
+      message("Here's the original warning message:")
+      message(cond)
+      message("\n")
+      # Choose a return value in case of warning
+      return(NA)
+    },
+    finally = NA
+  )
+
+  #Set mongo log value back to what it was
+
+  mongolite::mongo_log_level(mongo_log_convert(mongologval))
 
   return(mongo)
 }
@@ -36,23 +72,32 @@ toxbootConnectMongo <- function(){
 #'
 #' @param ...  parameters to query on. Format is query_field = query_values
 #'
-#' @return query, a mongo.bson object used for a query
+#' @return query, a json object used for a query
 toxbootQueryBuild <- function(...){
 
-  if (!requireNamespace("rmongodb", quietly = TRUE)) {
-    stop("rmongodb needed to connecto to MongoDB. Please install it.",
+  if (!requireNamespace("mongolite", quietly = TRUE)) {
+    stop("mongolite needed to connect to MongoDB. Please install it.",
+         call. = FALSE)
+  }
+
+  if (!requireNamespace("jsonlite", quietly = TRUE)) {
+    stop("jsonlite needed to construct MongoDB query. Please install it.",
          call. = FALSE)
   }
 
   #Build the query to select documents
-  query <- rmongodb::mongo.bson.buffer.create()
   morequery <- list(...)
-  for(i in 1:length(morequery)){
-    rmongodb::mongo.bson.buffer.append.list(query,
-                                            names(morequery[i]),
-                                            list("$in" = as.list(unname(unlist(morequery[i])))))
+
+  if (length(morequery) > 0){
+    for (i in 1:length(morequery)){
+      if (length(morequery[[i]]) > 1){
+        morequery[[i]] <- list("$in" = morequery[[i]])
+      }
+    }
+    query <- jsonlite::toJSON(morequery, auto_unbox = TRUE, POSIXt = "mongo")
+  } else {
+    query <- NULL
   }
-  query <- rmongodb::mongo.bson.from.buffer(query)
 
   return(query)
 }
@@ -81,7 +126,7 @@ toxbootQueryBuild <- function(...){
 #' @param datsample data.table used if concval = T
 #'
 #' @details The fitted results are assembled
-#'   into a bson object using \code{rmongodb} and written to the mongoDB.
+#'   into a json object using \code{jsonlite} and written to the mongoDB.
 #'
 #' @seealso \code{\link{toxboot}}
 #'
@@ -99,48 +144,48 @@ toxbootWriteMongo <- function(dat,
                     datchemresult,
                     datsample){
 
-  if (!requireNamespace("rmongodb", quietly = TRUE)) {
-    stop("rmongodb needed to connecto to MongoDB. Please install it.",
+  if (!requireNamespace("mongolite", quietly = TRUE)) {
+    stop("mongolite needed to connect to MongoDB. Please install it.",
          call. = FALSE)
   }
 
-  #insert into database
-  mongo <- toxbootConnectMongo()
-  if(rmongodb::mongo.is.connected(mongo)){
-    #create buffer to put into mongo
-    m3id_vect <- dat[m4id == this_m4id, m3id]
-    resp_vect <- dat[m4id == this_m4id, resp]
-    conc_vect <- dat[m4id == this_m4id, logc]
-    spid <- unique(dat[m4id == this_m4id, spid])
-    aeid <- unique(dat[m4id == this_m4id, aeid])
-    bmad <- unique(dat[m4id == this_m4id, bmad])
-    buf <- rmongodb::mongo.bson.buffer.create()
-    rmongodb::mongo.bson.buffer.append.int(buf, "aeid", aeid)
-    rmongodb::mongo.bson.buffer.append.int(buf, "bmad", bmad)
-    rmongodb::mongo.bson.buffer.append(buf, "boot_type", boot_method)
-    rmongodb::mongo.bson.buffer.append(buf, "spid", spid)
-    rmongodb::mongo.bson.buffer.append(buf, "m4id", this_m4id)
-    rmongodb::mongo.bson.buffer.append.int(buf, "replicates", replicates)
-    rmongodb::mongo.bson.buffer.append.time(buf, "started", starttime)
-    rmongodb::mongo.bson.buffer.append.time(buf, "modified", Sys.time())
-    rmongodb::mongo.bson.buffer.append(buf, "toxboot_version", as.character(packageVersion("toxboot")))
-    rmongodb::mongo.bson.buffer.append(buf, "logc_vect", logc_vect)
-    rmongodb::mongo.bson.buffer.append(buf, "m3id_vect", m3id_vect)
-    rmongodb::mongo.bson.buffer.append(buf, "resp_vect", resp_vect)
-    rmongodb::mongo.bson.buffer.append(buf, "conc_vect", conc_vect)
-    rmongodb::mongo.bson.buffer.append(buf, "concvals", concvals)
-    for (i in 1:length(fitpars)){
-      rmongodb::mongo.bson.buffer.append(buf, fitpars[i], datchemresult[, get(fitpars[i])])
-    }
-    if(concvals == T){
-      concnames <- names(datsample)
-      for (i in 1:length(concnames)){
-        rmongodb::mongo.bson.buffer.append(buf, concnames[i], datsample[, get(concnames[i])])
-      }
-    }
-    b <- rmongodb::mongo.bson.from.buffer(buf)
-    rmongodb::mongo.insert(mongo, toxbootConfList()$TOXBOOT_DBNS, b)
+  if (!requireNamespace("jsonlite", quietly = TRUE)) {
+    stop("jsonlite needed to format data for MongoDB. Please install it.",
+         call. = FALSE)
   }
+
+  #combine data into json format
+
+  list_data <- as.list(datchemresult)
+
+  #add identification fields
+
+  list_data$spid <- unique(dat[m4id == this_m4id, spid])
+  list_data$aeid <- unique(dat[m4id == this_m4id, aeid])
+  list_data$bmad <- unique(dat[m4id == this_m4id, bmad])
+  list_data$boot_method <- boot_method
+  list_data$m4id <- this_m4id
+  list_data$replicates <- replicates
+  list_data$started <- starttime
+  list_data$modified <- Sys.time()
+  list_data$toxboot_version <- as.character(packageVersion("toxboot"))
+  list_data$logc_vect <- logc_vect
+  list_data$m3id_vect <- dat[m4id == this_m4id, m3id]
+  list_data$resp_vect <- dat[m4id == this_m4id, resp]
+  list_data$conc_vect <- dat[m4id == this_m4id, logc]
+  list_data$concvals <- concvals
+
+  if(concvals == T){
+    list_conc <- as.list(datsample)
+    list_data <- c(list_data, list_conc)
+  }
+
+  #insert into database
+
+  mongo <- toxbootConnectMongo()
+  mongo$insert(jsonlite::toJSON(list_data, digits = 9))
+  rm(mongo)
+
 }
 
 #' Query mongoDB and get requested fields
@@ -164,11 +209,13 @@ toxbootWriteMongo <- function(dat,
 #' fields = c("hill_ga", "gnls_ga"))
 #' }
 #'
+#' @import data.table
+#'
 #' @export
 toxbootGetMongoFields <- function(fields, ...){
 
-  if (!requireNamespace("rmongodb", quietly = TRUE)) {
-    stop("rmongodb needed to connecto to MongoDB. Please install it.",
+  if (!requireNamespace("mongolite", quietly = TRUE)) {
+    stop("mongolite needed to connect to MongoDB. Please install it.",
          call. = FALSE)
   }
 
@@ -178,35 +225,49 @@ toxbootGetMongoFields <- function(fields, ...){
 
   num_results <- toxbootMongoCount(mongo = mongo, query = query)
   if(num_results < 1){
-    stop("No results returned for assay, chem, boot_method specified")
+    stop("No results returned for query provided specified\n
+         Query:\n", query)
   }
 
-  #Get the results, convert them to a data.table
-  result_list <- rmongodb::mongo.find.all(mongo = mongo,
-                                          ns = toxbootConfList()$TOXBOOT_DBNS,
-                                          query = query,
-                                          fields = projection)
-  result_df <- list()
+  result_list <- mongo$iterate(query = query, fields = projection)$batch()
 
-  rmongodb::mongo.destroy(mongo)
+  rm(mongo)
+
+  list_df <- vector(mode = "list", length = num_results)
 
   for (i in 1:length(result_list)){
-    numnull <- sum(unlist(lapply(result_list[[i]], anynulls)))
-    result_clean <- NULL
-    result_cleaner <- NULL
-    if(numnull){
-      result_clean <- lapply(result_list[[i]], nullToNA)
-      result_cleaner <- lapply(result_clean, listTonumeric)
-    }else{
-      result_cleaner <- result_list[[i]]
-    }
-    result_df[[i]] <- as.data.frame(result_cleaner)
+    result_clean <- lapply(result_list[[i]], unlist)
+    list_df[[i]] <- as.data.frame(result_clean, stringsAsFactors = FALSE)
   }
 
+  dat <- rbindlist(list_df, use.names = TRUE, fill = TRUE)
 
-  dat_result <- rbindlist(result_df, use.names=TRUE, fill=TRUE)
+  numeric_cols <- c("resp_max", "resp_min", "max_mean", "max_mean_conc", "max_med",
+                    "max_med_conc", "logc_max", "logc_min", "cnst", "hill", "hcov",
+                    "gnls", "gcov", "cnst_er", "cnst_aic", "cnst_rmse", "hill_tp",
+                    "hill_tp_sd", "hill_ga", "hill_ga_sd", "hill_gw", "hill_gw_sd",
+                    "hill_er", "hill_er_sd", "hill_aic", "hill_rmse", "gnls_tp",
+                    "gnls_tp_sd", "gnls_ga", "gnls_ga_sd", "gnls_gw", "gnls_gw_sd",
+                    "gnls_la", "gnls_la_sd", "gnls_lw", "gnls_lw_sd", "gnls_er",
+                    "gnls_er_sd", "gnls_aic", "gnls_rmse", "nconc", "npts", "nrep",
+                    "nmed_gtbl", "m4id", "replicates", "bmad")
+  char_cols <- c("boot_method", "toxboot_version", "spid")
+  logic_cols <- c("concvals")
+  time_cols <- c("started", "modified")
 
-  return(dat_result)
+  for (j in names(dat)) {
+    if (j %in% char_cols) {
+      set(dat, j = j, value = as.character(dat[[j]]))
+    } else if (j %in% time_cols) {
+      set(dat, j = j, value = as.POSIXct(dat[[j]]))
+    } else if (j %in% logic_cols) {
+      set(dat, j = j, value = as.logical(dat[[j]]))
+    } else {
+      set(dat, j = j, value = suppressWarnings(as.numeric(dat[[j]])))
+    }
+  }
+
+  return(dat)
 }
 
 #' Build projection for toxboot MongoDB
@@ -232,6 +293,8 @@ toxbootProjectionBuild <- function(fields, id_val = 0L){
   id_val <- list("_id" = id_val)
   select_val <- as.list(rep(1L, length(fields)))
   names(select_val) <- fields
-  projection <- c(id_val, select_val)
+  projection <- jsonlite::toJSON(c(id_val, select_val),
+                                 auto_unbox = TRUE,
+                                 POSIXt = "mongo")
 
 }

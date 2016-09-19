@@ -10,7 +10,7 @@ toxbootQueryBuild(...)
 \item{...}{parameters to query on. Format is query_field = query_values}
 }
 \value{
-query, a mongo.bson object used for a query
+query, a json object used for a query
 }
 \description{
 \code{toxbootQueryBuild} imports toxboot query from list of input parameters.

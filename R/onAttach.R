@@ -1,4 +1,7 @@
-if(getRversion() >= "2.15.1")  utils::globalVariables(c("mongo_host", "DBNS", "user", "pass", "db"))
+if(getRversion() >= "2.15.1"){
+  utils::globalVariables(c("mongo_host", "collection", "user",
+                           "pass", "db", "port"))
+}
 
 .onAttach <- function(libname, pkgname) {
 
@@ -23,10 +26,11 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("mongo_host", "DBNS", "u
 
   packageStartupMessage("toxboot ", as.character(utils::packageVersion("toxboot")),
                         "\nMongoDB settings (?toxbootConf):\n  ",
-                        "TOXBOOT_HOST: ", toxget$TOXBOOT_HOST,
-                        "\n  TOXBOOT_DBNS: ", toxget$TOXBOOT_DBNS,
-                        "\n  TOXBOOT_USER: ", toxget$TOXBOOT_USER,
-                        "\n  TOXBOOT_DB: ", toxget$TOXBOOT_DB,
+                        "Host: ", toxget$TOXBOOT_HOST,
+                        "\n  Collection: ", toxget$TOXBOOT_COLLECTION,
+                        "\n  User: ", toxget$TOXBOOT_USER,
+                        "\n  DB: ", toxget$TOXBOOT_DB,
+                        "\n  Port: ", toxget$TOXBOOT_PORT,
                         "\nMySQL settings:\n",
                         "  Host: ", mysql_host,
                         "\n  Database: ", mysql_db,

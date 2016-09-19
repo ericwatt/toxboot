@@ -33,17 +33,18 @@ Options for mongo or mysql require some configuration.
 MongoDB
 -------
 
-For bootstrapping a large number of curves, or performing a large number of resamples per curve, the suggested destination is `mongo`. This package uses `rmongodb` as the package to communicate with a Mongo database. Authentication and connection parameters for the MongoDB are managed with `toxbootConf` and related functions. Users of the `tcpl` package will be familiar with these settings.
+For bootstrapping a large number of curves, or performing a large number of resamples per curve, the suggested destination is `mongo`. This package uses `mongolite` as the package to communicate with a Mongo database. Authentication and connection parameters for the MongoDB are managed with `toxbootConf` and related functions. Users of the `tcpl` package will be familiar with these settings.
 
 After installing `toxboot` you can setup these parameters:
 
 ``` r
 library(toxboot)
 toxbootConf(mongo_host = "123.45.67.89",
-            db = "bootstrap",
-            DBNS = "bootstrap.prod_external_invitrodb_v2",
+            collection = "prod_external_invitrodb_v2"
             user = "username",
-            pass = "password")
+            pass = "password",
+            db = "bootstrap",
+            port = "27017")
 ```
 
 You can view the current parametes with `toxbootConfList`, save them to the configuration file with `toxbootConfSave`, and load from the configuration file with `toxbootConfLoad`. The configuration file can be reset to the installation defaults of `NA` using `toxbootConfReset`.
@@ -52,10 +53,11 @@ You can view the current parametes with `toxbootConfList`, save them to the conf
 toxbootConfList(show.pass = TRUE)
 toxbootConfSave()
 toxbootConf(mongo_host = NA, 
-            DBNS = NA, 
+            collection = NA, 
             user = NA, 
             pass = NA, 
-            db = NA)
+            db = NA,
+            port = NA)
 toxbootConfList(show.pass = TRUE)
 toxbootConfLoad()
 toxbootConfList(show.pass = TRUE)
@@ -88,22 +90,11 @@ m4ids <- erl5data[hitc == 1L, m4id]
 dat <- toxbootmc(dat = erl3data, 
                  boot_method = "smooth",
                  m4ids = m4ids,
-                 cores = 8, 
+                 cores = 1, 
                  destination = "memory", 
                  replicates = 100) %>%
   toxbootHitParamCI(erl5data)
-
-ggplot(dat, aes(x = modl_ga, group = m4id)) + 
-  stat_ecdf() + 
-  theme_bw()
-#> Warning: Removed 310 rows containing non-finite values (stat_ecdf).
 ```
-
-![](README-example_included-1.png)
-
-Then, plot the bootstrap curves for a single curve (see vignette for code and more examples).
-
-![](README-boot_fits-1.png)
 
 A real world example pulling from the ToxCast database using MongoDB to store the results would run as the following.
 

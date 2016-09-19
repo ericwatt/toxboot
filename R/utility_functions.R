@@ -1,3 +1,5 @@
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("description", "level"))
+
 #' Replace NULL values with NA.
 #'
 #' \code{nullToNA} is used to convert any NULL values to NA in a list.
@@ -44,4 +46,17 @@ listTonumeric <- function(x){
 anynulls <- function(x){
   numnull <- sum(sapply(x, is.null))
   return(numnull)
+}
+
+
+log_convert <- data.table(level = c(0:6),
+                          description = c("ERROR",
+                                          "CRITICAL",
+                                          "WARNING",
+                                          "MESSAGE",
+                                          "INFO",
+                                          "DEBUG",
+                                          "TRACE"))
+mongo_log_convert <- function(x){
+  log_convert[description == x, level]
 }
