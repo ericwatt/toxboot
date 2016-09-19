@@ -173,7 +173,8 @@ toxbootWriteMongo <- function(dat,
   #insert into database
 
   mongo <- toxbootConnectMongo()
-  mongo$insert(jsonlite::toJSON(list_data))
+  mongo$insert(jsonlite::toJSON(list_data, digits = 9))
+  rm(mongo)
 
 }
 
@@ -221,11 +222,13 @@ toxbootGetMongoFields <- function(fields, ...){
 
   result_list <- mongo$iterate(query = query, fields = projection)$batch()
 
+  rm(mongo)
+
   list_df <- vector(mode = "list", length = num_results)
 
   for (i in 1:length(result_list)){
     result_clean <- lapply(result_list[[i]], unlist)
-    list_df[[i]] <- as.data.frame(result_clean)
+    list_df[[i]] <- as.data.frame(result_clean, stringsAsFactors = FALSE)
   }
 
   dat <- rbindlist(list_df, use.names = TRUE, fill = TRUE)
