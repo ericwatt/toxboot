@@ -43,8 +43,12 @@ toxbootmc <- function(dat,
   # Check that correct packages are loaded for a given destination value
 
   if (destination == "mongo"){
-    if (!requireNamespace("rmongodb", quietly = TRUE)) {
-      stop("rmongodb needed to use destination 'mongo'. Please install it.",
+    if (!requireNamespace("mongolite", quietly = TRUE)) {
+      stop("mongolite needed to use destination 'mongo'. Please install it.",
+           call. = FALSE)
+    }
+    if (!requireNamespace("jsonlite", quietly = TRUE)) {
+      stop("jsonlite needed to use destination 'mongo'. Please install it.",
            call. = FALSE)
     }
   } else if (destination == "mysql"){

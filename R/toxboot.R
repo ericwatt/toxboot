@@ -35,7 +35,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("logc", "resp", "bmad", 
 #'
 #'   \item mongo : If \code{destination} is set to "mongo" a connection to the
 #'   mongo database will be created and the results will be written using the
-#'   \code{rmongodb} package. The connection will be established using the
+#'   \code{mongolite} package. The connection will be established using the
 #'   parameters retrieved using \code{\link{toxbootConfList}} by the function
 #'   \code{\link{toxbootConnectMongo}}. See the documentation on these functions
 #'   as well as \code{\link{toxbootConf}} for how to properly setup the MongoDB
@@ -56,8 +56,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("logc", "resp", "bmad", 
 #'   reasonable option for checking a few curves or even an entire assay with
 #'   1000 replicates if a suitable amount of memory is available. Care must be
 #'   taken as the resulting data.table can become multiple GB in memory } The
-#'   fitted results are assembled into a bson object using \code{rmongodb} and
-#'   written to the mongoDB.
+#'   fitted results are assembled and written to MongoDB using \code{mongolite}.
 #'
 #' @seealso \code{\link{toxbootReplicates}}
 #'
@@ -75,8 +74,8 @@ toxboot <- function(dat,
                     ){
 
   if (destination == "mongo"){
-    if (!requireNamespace("rmongodb", quietly = TRUE)) {
-      stop("rmongodb needed to use destination 'mongo'. Please install it.",
+    if (!requireNamespace("mongolite", quietly = TRUE)) {
+      stop("mongolite needed to use destination 'mongo'. Please install it.",
            call. = FALSE)
     }
   } else if (destination == "mysql"){
