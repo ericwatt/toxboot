@@ -263,7 +263,7 @@ toxbootGetMongoFields <- function(fields, ...){
     } else if (j %in% logic_cols) {
       set(dat, j = j, value = as.logical(dat[[j]]))
     } else {
-      set(dat, j = j, value = as.numeric(dat[[j]]))
+      set(dat, j = j, value = suppressWarnings(as.numeric(dat[[j]])))
     }
   }
 
