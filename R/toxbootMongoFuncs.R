@@ -62,7 +62,7 @@ toxbootConnectMongo <- function(){
 #'
 #' @param ...  parameters to query on. Format is query_field = query_values
 #'
-#' @return query, a mongo.bson object used for a query
+#' @return query, a json object used for a query
 toxbootQueryBuild <- function(...){
 
   if (!requireNamespace("mongolite", quietly = TRUE)) {
