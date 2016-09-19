@@ -41,6 +41,8 @@ test_that("toxboot returns correct object", {
   expect_type(dat_hit[, modl_tp],   "double")
 })
 
+context("MongoDB")
+
 test_that("toxboot writes to and reads from MongoDB", {
   toxbootConf(mongo_host = "ds033046.mlab.com",
               collection = "toxboot_test",
@@ -75,9 +77,17 @@ test_that("toxboot writes to and reads from MongoDB", {
   dat_fetch <- toxbootGetMongoFields(fields = names(dat),
                                      m4id = unique(dat[, m4id]))
 
+  setcolorder(dat_fetch, names(dat))
+
+  expect_equal(dim(dat)[1], 40)
+  expect_equal(dim(dat)[2], 52)
+  expect_equal(dim(dat_fetch)[1], 40)
+  expect_equal(dim(dat_fetch)[2], 52)
+  expect_equal(names(dat), names(dat_fetch))
+
   dat_memory <- dat[, !c("started", "modified"), with=FALSE]
   dat_mongo <- dat_fetch[, !c("started", "modified"), with=FALSE]
-  setcolorder(dat_mongo, names(dat_memory))
+
 
   expect_equal(dat_memory, dat_mongo)
 })
