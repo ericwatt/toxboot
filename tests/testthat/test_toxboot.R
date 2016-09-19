@@ -89,5 +89,5 @@ test_that("toxboot writes to and reads from MongoDB", {
   dat_mongo <- dat_fetch[, !c("started", "modified"), with=FALSE]
 
 
-  expect_equal(dat_memory, dat_mongo)
+  expect_equal(dat_memory, dat_mongo, tolerance = .0000001, scale = 1)
 })
