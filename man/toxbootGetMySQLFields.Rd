@@ -4,13 +4,13 @@
 \alias{toxbootGetMySQLFields}
 \title{Function to query toxboot results from MySQL}
 \usage{
-toxbootGetMySQLFields(fields = "*", table = "toxboot", ...)
+toxbootGetMySQLFields(fields = "*", table_name = "toxboot", ...)
 }
 \arguments{
 \item{fields}{a vector specifying which columns to return. Default to '*'
 which will return all columns}
 
-\item{table}{the name of the table to query. By default 'toxboot'.}
+\item{table_name}{the name of the table to query. By default 'toxboot'.}
 
 \item{...}{parameters to query on. Format is query_field = query_values.}
 }
@@ -20,7 +20,7 @@ data.table with the requested results
 }
 \details{
 Use the fields parameters to specify which columns to return. The
-  parameter 'table' defaults to 'toxboot' which is the default table for
+  parameter 'table_name' defaults to 'toxboot' which is the default table for
   writing and reading results. All other parameters will be passed as values
   to select on.
 }

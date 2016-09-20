@@ -5,7 +5,7 @@
 \title{Main function to sample, fit, and write results to mongoDB}
 \usage{
 toxboot(dat, m4id, boot_method, replicates = 100, concvals = F,
-  destination = "memory")
+  destination = "memory", table_name = "toxboot")
 }
 \arguments{
 \item{dat}{A data.table. Required columns are: logc: numeric, contains
@@ -19,8 +19,8 @@ character, sample ID bmad: numeric, baseline mad. Unique to an aeid.}
 determine which rows are selected, and therefore the values of logc, resp,
 m3id, aeid, spid, and bmad.}
 
-\item{boot_method}{parameter passed to \code{toxbootReplicates} to determine
-sampling method}
+\item{boot_method}{parameter passed to \code{\link{toxbootReplicates}} to
+determine sampling method}
 
 \item{replicates}{number of bootstrap samples. Default 100}
 
@@ -29,17 +29,21 @@ written to the database as well.}
 
 \item{destination}{string length 1, options are "mongo", "mysql", "file",
 "memory"}
+
+\item{table_name}{string length 1, the name of the MySQL table to write
+results to. Default is "toxboot". The table can be erased and configured
+used \code{\link{toxbootMysqlCreateTable}}}
 }
 \description{
 \code{toxboot} is the main function that performs the bootstrap sampling,
-fitting, and writing to the database
+  fitting, and writing to the database
 }
 \details{
 \code{toxboot} is the workhorse function of this package. This
   function will typically be wrapped in a mclapply to perform in parallel
   using \code{\link{toxbootmc}}. The dose response data is passed to
-  \code{toxbootReplicates}. The returned matrix is passed to
-  \code{tcpl::tcplFit}.
+  \code{\link{toxbootReplicates}}. The returned matrix is passed to
+  \code{\link[tcpl]{tcplFit}}.
 
   There are multiple options for saving the results, based on the value of
   \code{destination}.

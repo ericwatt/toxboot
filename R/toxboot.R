@@ -1,9 +1,10 @@
-if(getRversion() >= "2.15.1")  utils::globalVariables(c("logc", "resp", "bmad", "m3id"))
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("logc", "resp",
+                                                        "bmad", "m3id"))
 
 #' Main function to sample, fit, and write results to mongoDB
 #'
 #' \code{toxboot} is the main function that performs the bootstrap sampling,
-#' fitting, and writing to the database
+#'   fitting, and writing to the database
 #'
 #' @param dat A data.table. Required columns are: logc: numeric, contains
 #'   concentrations resp: numeric, normalized response values paired with
@@ -14,19 +15,22 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("logc", "resp", "bmad", 
 #' @param m4id numeric length 1, m4id to bootstrap. Choice of m4id will
 #'   determine which rows are selected, and therefore the values of logc, resp,
 #'   m3id, aeid, spid, and bmad.
-#' @param boot_method parameter passed to \code{toxbootReplicates} to determine
-#'   sampling method
+#' @param boot_method parameter passed to \code{\link{toxbootReplicates}} to
+#'   determine sampling method
 #' @param replicates number of bootstrap samples. Default 100
 #' @param concvals logical, default is FALSE. If TRUE, dose response samples
 #'   written to the database as well.
 #' @param destination string length 1, options are "mongo", "mysql", "file",
 #'   "memory"
+#' @param table_name string length 1, the name of the MySQL table to write
+#'   results to. Default is "toxboot". The table can be erased and configured
+#'   used \code{\link{toxbootMysqlCreateTable}}
 #'
 #' @details \code{toxboot} is the workhorse function of this package. This
 #'   function will typically be wrapped in a mclapply to perform in parallel
 #'   using \code{\link{toxbootmc}}. The dose response data is passed to
-#'   \code{toxbootReplicates}. The returned matrix is passed to
-#'   \code{tcpl::tcplFit}.
+#'   \code{\link{toxbootReplicates}}. The returned matrix is passed to
+#'   \code{\link[tcpl]{tcplFit}}.
 #'
 #'   There are multiple options for saving the results, based on the value of
 #'   \code{destination}.
@@ -68,9 +72,10 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("logc", "resp", "bmad", 
 toxboot <- function(dat,
                     m4id,
                     boot_method,
-                    replicates=100,
+                    replicates = 100,
                     concvals = F,
-                    destination = "memory"
+                    destination = "memory",
+                    table_name = "toxboot"
                     ){
 
   if (destination == "mongo"){
@@ -79,12 +84,11 @@ toxboot <- function(dat,
            call. = FALSE)
     }
   } else if (destination == "mysql"){
-    if (!requireNamespace("RMySQL", quietly = TRUE)) {
-      if (!requireNamespace("DBI", quietly = TRUE)) {
-        stop("RMySQL and DBI needed to use destination 'mysql'.
+    if (!(requireNamespace("RMySQL", quietly = TRUE) &
+          requireNamespace("DBI", quietly = TRUE))) {
+      stop("RMySQL and DBI needed to use destination 'mysql'.
              Please install them.",
-             call. = FALSE)
-      }
+           call. = FALSE)
     }
   } else if (!(destination %in% c("file", "memory"))){
     stop("value of destination not recognized")
@@ -166,7 +170,7 @@ toxboot <- function(dat,
                           bmad = datchemval$bmad[1])]
     con <- DBI::dbConnect(drv = RMySQL::MySQL(), group = "toxboot")
     DBI::dbWriteTable(con,
-                      name = "toxboot",
+                      name = table_name,
                       value = datchemresult,
                       row.names = FALSE,
                       append = TRUE)

@@ -1,3 +1,5 @@
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("concvals"))
+
 #' Function to query toxboot results from MySQL
 #'
 #' \code{toxbootGetMySQLFields} queries the toxboot MySQL table and returns a
@@ -5,11 +7,11 @@
 #'
 #' @param fields  a vector specifying which columns to return. Default to '*'
 #'   which will return all columns
-#' @param table  the name of the table to query. By default 'toxboot'.
+#' @param table_name  the name of the table to query. By default 'toxboot'.
 #' @param ... parameters to query on. Format is query_field = query_values.
 #'
 #' @details Use the fields parameters to specify which columns to return. The
-#'   parameter 'table' defaults to 'toxboot' which is the default table for
+#'   parameter 'table_name' defaults to 'toxboot' which is the default table for
 #'   writing and reading results. All other parameters will be passed as values
 #'   to select on.
 #'
@@ -30,20 +32,19 @@
 #' }
 #'
 #' @export
-toxbootGetMySQLFields <- function(fields = '*', table = "toxboot", ...){
+toxbootGetMySQLFields <- function(fields = '*', table_name = "toxboot", ...){
 
-  if (!requireNamespace("RMySQL", quietly = TRUE)) {
-    if (!requireNamespace("DBI", quietly = TRUE)) {
-      stop("RMySQL and DBI needed to use this function.
-             Please install them.",
-           call. = FALSE)
-    }
+  if (!(requireNamespace("RMySQL", quietly = TRUE) &
+        requireNamespace("DBI", quietly = TRUE))) {
+    stop("RMySQL and DBI needed to use this function.
+         Please install them.",
+         call. = FALSE)
   }
 
   con <- DBI::dbConnect(drv = RMySQL::MySQL(), group = "toxboot")
   columns <- paste(fields, collapse = ", ")
   query_list <- list(...)
-  query <- paste('SELECT ', columns, ' FROM ', table, sep = "")
+  query <- paste('SELECT ', columns, ' FROM ', table_name, sep = "")
   if(length(query_list) > 0){
     query_sel_list <- vector("list", length = length(query_list))
     for(i in 1:length(query_list)){
@@ -62,6 +63,10 @@ toxbootGetMySQLFields <- function(fields = '*', table = "toxboot", ...){
   dat_toxboot <- data.table(DBI::dbFetch(res, n = -1))
   DBI::dbClearResult(res)
   DBI::dbDisconnect(con)
+
+  if ('concvals' %in% names(dat_toxboot)){
+    dat_toxboot[, concvals := as.logical(concvals)]
+  }
 
   return(dat_toxboot[])
 }

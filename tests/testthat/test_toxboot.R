@@ -47,6 +47,77 @@ test_that("toxboot returns correct object", {
   expect_type(dat_hit[, modl_tp],   "double")
 })
 
+context("MySQL")
+
+test_that("MySQL table is created correctly", {
+  expect_error(toxbootMysqlCreateTable(),
+               "table_name not provided, please specify a table to create")
+
+  toxbootMysqlCreateTable(table_name = "testthat")
+  con <- DBI::dbConnect(drv = RMySQL::MySQL(), group = "toxboot")
+  expect_true(DBI::dbExistsTable(con, "testthat"))
+
+  #remove test table
+  catch <- DBI::dbRemoveTable(con, "testthat")
+  catch <- DBI::dbDisconnect(con)
+})
+
+test_that("MySQL destination works", {
+
+  mysql_db <- ""
+
+  try({
+    con <- DBI::dbConnect(drv = RMySQL::MySQL(), group = "toxboot")
+    mysql_info <- DBI::dbGetInfo(con)
+    DBI::dbDisconnect(con)
+    mysql_host <- mysql_info$host
+    mysql_db   <- mysql_info$dbname
+    mysql_user <- mysql_info$user
+  }, silent = TRUE)
+
+  if (mysql_db == "") {
+    skip("MySQL not fully configured for testing.")
+  }
+
+  m4ids <- c(tail(erl5data[hitc == 1L, m4id], 10),
+             tail(erl5data[hitc == 0L, m4id], 10))
+
+  toxbootMysqlCreateTable(table_name = "testthat")
+
+  set.seed(1234)
+  list <- lapply(m4ids,
+                 toxboot,
+                 dat = erl3data,
+                 boot_method = "smooth",
+                 destination = "memory",
+                 replicates = 2)
+  dat <- rbindlist(list)
+
+  set.seed(1234)
+  lapply(m4ids,
+         toxboot,
+         dat = erl3data,
+         boot_method = "smooth",
+         destination = "mysql",
+         replicates = 2,
+         table_name = "testthat")
+
+  dat_fetch <- toxbootGetMySQLFields(table = "testthat")
+
+  dat_mysql <- dat_fetch[, !c("started", "modified"), with=FALSE]
+  dat_memory <- dat[, !c("started", "modified"), with=FALSE]
+
+  setcolorder(dat_mysql, names(dat_memory))
+
+  expect_equal(dat_memory, dat_mysql, tolerance = .0000001, scale = 1)
+
+  #cleanup database
+
+  con <- DBI::dbConnect(drv = RMySQL::MySQL(), group = "toxboot")
+  catch <- DBI::dbRemoveTable(con, "testthat")
+  catch <- DBI::dbDisconnect(con)
+})
+
 context("Destination File")
 
 test_that("Destination file works", {
