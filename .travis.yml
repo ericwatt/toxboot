@@ -4,9 +4,10 @@ services:
   - mysql
 
 before_script:
-  - echo "[toxboot]\nuser = travis-user\npassword = travis-pass\ndatabase = toxboot" | tee -a ~/.my.cnf
-  - mysql -e 'create database toxboot;'
-  - mysql -e "create user 'travis-user'@'localhost' identified by 'travis-pass';"
+  - echo -e "[toxboot]\nuser = travis-user\npassword = travis-pass\ndatabase = toxboot" | cat > ~/.my.cnf
+  - mysql -e 'create database toxboot;' -uroot
+  - mysql -e "create user 'travis-user'@'localhost' identified by 'travis-pass';" -uroot
+  - mysql -e "grant all privileges on toxboot.* to 'travis-user'@'localhost';" -uroot
 
 language: r
 r:
