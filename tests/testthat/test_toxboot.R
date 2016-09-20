@@ -50,6 +50,22 @@ test_that("toxboot returns correct object", {
 context("MySQL")
 
 test_that("MySQL table is created correctly", {
+
+  mysql_db <- ""
+
+  try({
+    con <- DBI::dbConnect(drv = RMySQL::MySQL(), group = "toxboot")
+    mysql_info <- DBI::dbGetInfo(con)
+    DBI::dbDisconnect(con)
+    mysql_host <- mysql_info$host
+    mysql_db   <- mysql_info$dbname
+    mysql_user <- mysql_info$user
+  }, silent = TRUE)
+
+  if (mysql_db == "") {
+    skip("MySQL not fully configured for testing.")
+  }
+
   expect_error(toxbootMysqlCreateTable(),
                "table_name not provided, please specify a table to create")
 
