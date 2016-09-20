@@ -22,6 +22,12 @@ test_that("toxboot returns correct object", {
                          cores = 1,
                          destination = "destination_unknown",
                          replicates = 10))
+  expect_error(toxbootmc(dat = erl3data,
+                         m4ids = unique(erl3data[, m4id])[1:5],
+                         boot_method = "chunky",
+                         cores = 1,
+                         destination = "destination_unknown",
+                         replicates = 10))
 
   dat_hit <- toxbootHitParamCI(dat, erl5data)
 
@@ -39,6 +45,47 @@ test_that("toxboot returns correct object", {
   expect_type(dat_hit[, boot_hitc], "integer")
   expect_type(dat_hit[, modl_ga],   "double")
   expect_type(dat_hit[, modl_tp],   "double")
+})
+
+context("Destination File")
+
+test_that("Destination file works", {
+  m4ids <- c(tail(erl5data[hitc == 1L, m4id], 10),
+             tail(erl5data[hitc == 0L, m4id], 10))
+
+  set.seed(1234)
+  list <- lapply(m4ids,
+                 toxboot,
+                 dat = erl3data,
+                 boot_method = "smooth",
+                 destination = "memory",
+                 replicates = 2)
+  dat <- rbindlist(list)
+
+  set.seed(1234)
+  lapply(m4ids,
+         toxboot,
+         dat = erl3data,
+         boot_method = "smooth",
+         destination = "file",
+         replicates = 2)
+
+  df_list <- vector(mode = "list", length = length(m4ids))
+  i <- 1
+  for (chem in m4ids){
+    file.name <- paste("toxboot/", chem, ".csv", sep = "")
+    df_list[[i]] <- read.csv(file.name, stringsAsFactors = F)
+    i <- i + 1
+  }
+
+  dat_file <- rbindlist(df_list)[, !c("started", "modified"), with=FALSE]
+  dat_memory <- dat[, !c("started", "modified"), with=FALSE]
+
+  expect_equal(dat_memory, dat_file, tolerance = .0000001, scale = 1)
+
+  #cleanup directory
+
+  unlink("./toxboot", recursive = TRUE)
 })
 
 context("MongoDB")

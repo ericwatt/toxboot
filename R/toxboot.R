@@ -150,7 +150,7 @@ toxboot <- function(dat,
     file.name <- paste("toxboot/", this_m4id, ".csv", sep = "")
     write.table(datchemresult,
                 file = file.name,
-                append = TRUE,
+                append = (file.exists(file.name)),
                 sep = ",",
                 quote = FALSE,
                 row.names = FALSE,
