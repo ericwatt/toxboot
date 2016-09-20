@@ -27,17 +27,17 @@ toxbootConfSave <- function () {
   }
 
   mongo_host <- options()$TOXBOOT_HOST
-  mongo_host <- if(is.na(mongo_host)) shQuote("NA_character_") else shQuote(mongo_host)
+  mongo_host <- if(is.na(mongo_host)) NA else shQuote(mongo_host)
   collection <- options()$TOXBOOT_COLLECTION
-  collection <- if(is.na(collection)) shQuote("NA_character_") else shQuote(collection)
+  collection <- if(is.na(collection)) NA else shQuote(collection)
   user <- options()$TOXBOOT_USER
-  user <- if(is.na(user)) shQuote("NA_character_") else shQuote(user)
+  user <- if(is.na(user))             NA else shQuote(user)
   pass   <- options()$TOXBOOT_PASS
-  pass   <- if(is.na(pass))   shQuote("NA_character_") else shQuote(pass)
+  pass   <- if(is.na(pass))           NA else shQuote(pass)
   db   <- options()$TOXBOOT_DB
-  db   <- if(is.na(db))   shQuote("NA_character_") else shQuote(db)
+  db   <- if(is.na(db))               NA else shQuote(db)
   port   <- options()$TOXBOOT_PORT
-  port   <- if(is.na(port))   shQuote("NA_character_") else shQuote(port)
+  port   <- if(is.na(port))           NA else shQuote(port)
 
   pkgd <- system.file(package = "toxboot")
   conf_file <- file.path(pkgd, "toxboot.config")
@@ -67,12 +67,12 @@ toxbootConfReset <- function () {
   cat("## Toxboot MongoDB authentication settings.",
       "## See ?toxbootConf for more info about these settings.",
       "",
-      "mongo_host = NA_character_ # the database server IP address",
-      "collection = NA_character_ # the database server collection",
-      "user = NA_character_ # username for database db",
-      "pass = NA_character_ # password for username on db",
-      "db = NA_character_ # the database where the user is authenticated",
-      "port = NA_character_ # the port to connect on. Default for mongoDB is 27017",
+      "mongo_host = NA # the database server IP address",
+      "collection = NA # the database server collection",
+      "user = NA# username for database db",
+      "pass = NA # password for username on db",
+      "db = NA # the database where the user is authenticated",
+      "port = NA # the port to connect on. Default for mongoDB is 27017",
       sep = "\n",
       file = conf_file,
       append = FALSE)

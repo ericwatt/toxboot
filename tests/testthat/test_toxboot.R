@@ -92,3 +92,67 @@ test_that("toxboot writes to and reads from MongoDB", {
 
   expect_equal(dat_memory, dat_mongo, tolerance = .0000001, scale = 1)
 })
+
+
+context("toxbootConf")
+
+test_that("configuration files are set and ready correctly", {
+  start_opts <- toxbootConfList(show.pass = TRUE)
+
+  toxbootConfLoad()
+  start_file <- toxbootConfList(show.pass = TRUE)
+
+  toxbootConf(mongo_host = "ds033046.mlab.com",
+              collection = "toxboot_test",
+              user = "toxboot_test",
+              pass = "bootstrap",
+              db = "toxboot",
+              port = "33046")
+
+  toxget <- toxbootConfList(show.pass = TRUE)
+  expect_equal(toxget$TOXBOOT_HOST, "ds033046.mlab.com")
+  expect_equal(toxget$TOXBOOT_COLLECTION, "toxboot_test")
+  expect_equal(toxget$TOXBOOT_USER, "toxboot_test")
+  expect_equal(toxget$TOXBOOT_PASS, "bootstrap")
+  expect_equal(toxget$TOXBOOT_DB, "toxboot")
+  expect_equal(toxget$TOXBOOT_PORT, "33046")
+
+  # Check that file can be reset
+  toxbootConfReset()
+  toxbootConfLoad()
+  toxget <- toxbootConfList(show.pass = TRUE)
+  expect_equal(toxget$TOXBOOT_HOST, NA)
+  expect_equal(toxget$TOXBOOT_COLLECTION, NA)
+  expect_equal(toxget$TOXBOOT_USER, NA)
+  expect_equal(toxget$TOXBOOT_PASS, NA)
+  expect_equal(toxget$TOXBOOT_DB, NA)
+  expect_equal(toxget$TOXBOOT_PORT, NA)
+
+  #password isn't returned by default
+
+  expect_null(toxbootConfList()$TOXBOOT_PASS)
+
+  #return file to previous state
+
+  toxbootConf(mongo_host = start_file$TOXBOOT_HOST,
+              collection = start_file$TOXBOOT_COLLECTION,
+              user = start_file$TOXBOOT_USER,
+              pass = start_file$TOXBOOT_PASS,
+              db = start_file$TOXBOOT_DB,
+              port = start_file$TOXBOOT_PORT)
+  toxbootConfSave()
+  toxbootConfLoad()
+  expect_equal(start_file, toxbootConfList(show.pass = TRUE))
+
+  #return settings to previous state
+
+  toxbootConf(mongo_host = start_opts$TOXBOOT_HOST,
+              collection = start_opts$TOXBOOT_COLLECTION,
+              user = start_opts$TOXBOOT_USER,
+              pass = start_opts$TOXBOOT_PASS,
+              db = start_opts$TOXBOOT_DB,
+              port = start_opts$TOXBOOT_PORT)
+
+  expect_equal(start_opts, toxbootConfList(show.pass=TRUE))
+
+})
