@@ -33,6 +33,9 @@ toxbootReplicates <- function(datchemval,
                               boot_method = 'smooth',
                               replicates = 100
                               ){
+  #make a copy of datchemval to avoid modification in parent function
+  datchemval_copy <- copy(datchemval)
+
   #check to make sure boot_method is supported, return error if not
   methods <- c("case",
                "smooth",
@@ -49,33 +52,34 @@ toxbootReplicates <- function(datchemval,
   #datchemstat is used in multiple cases,
   #best to have it before the different methods to make sure it's done the same way
   #get mean, sd, median of values at given conc
-  datchemstat = data.table(logc=sort(unique(datchemval$logc)))
+  datchemstat = data.table(logc = sort(unique(datchemval_copy$logc)))
   for (conc in unique(datchemstat$logc)){
-    datchemstat[logc == conc, sd := sd(datchemval[logc == conc,resp])]
-    datchemstat[logc == conc, mean := mean(datchemval[logc == conc,resp])]
-    datchemstat[logc == conc, median := median(datchemval[logc == conc,resp])]
+    datchemstat[logc == conc, sd     := sd(    datchemval_copy[logc == conc, resp])]
+    datchemstat[logc == conc, mean   := mean(  datchemval_copy[logc == conc, resp])]
+    datchemstat[logc == conc, median := median(datchemval_copy[logc == conc, resp])]
 
     #Adds column that gives the number of repeats for that chemical at that concentration
-    datchemstat[logc == conc, number_measurements := length(datchemval[logc == conc,resp])]
+    datchemstat[logc == conc,
+                number_measurements := length(datchemval_copy[logc == conc, resp])]
   }
 
-  bmad = datchemval$bmad[1]
+  bmad = datchemval_copy$bmad[1]
 
   #now generate the samples depending on method
 
   if(boot_method == 'watt_normal'){
     #Make data frame with number of columns of sampled values equal to replicates
     tempmat <- c()
-    for (conc in datchemstat[,logc]){   #REMOVE SORT AND UNIQUE?
+    for (conc in datchemstat[, logc]){   #REMOVE SORT AND UNIQUE?
       number_measurements <- datchemstat[logc == conc, number_measurements]
-      resp_vect <- datchemval[logc == conc, resp] #gets the measured responses at this concentration
+      resp_vect <- datchemval_copy[logc == conc, resp] #gets the measured responses at this concentration
       if(number_measurements > 1){
         for (numpoint in 1:number_measurements){
           mean_resp <- datchemstat[logc == conc, mean]
           sd_resp <- datchemstat[logc == conc, sd]
-          vect <- rnorm(n = replicates,
-                        mean=mean_resp,
-                        sd = sd_resp)
+          vect <- rnorm(n    = replicates,
+                        mean = mean_resp,
+                        sd   = sd_resp)
           tempmat <- rbind(tempmat, vect)
         }
       }
@@ -89,14 +93,14 @@ toxbootReplicates <- function(datchemval,
   if(boot_method == 'watt_student_df5'){
     #Make data frame with number of columns of sampled values equal to replicates
     tempmat <- c()
-    for (conc in datchemstat[,logc]){   #REMOVE SORT AND UNIQUE?
+    for (conc in datchemstat[, logc]){   #REMOVE SORT AND UNIQUE?
       number_measurements <- datchemstat[logc == conc, number_measurements]
-      resp_vect <- datchemval[logc == conc, resp] #gets the measured responses at this concentration
+      resp_vect <- datchemval_copy[logc == conc, resp] #gets the measured responses at this concentration
       if(number_measurements > 1){
         for (numpoint in 1:number_measurements){
           mean_resp <- datchemstat[logc == conc, mean]
           sd_resp <- datchemstat[logc == conc, sd]
-          vect <- rt(n = replicates, df = 5)*sd_resp*sqrt((5-2)/5)+mean_resp
+          vect <- rt(n = replicates, df = 5) * sd_resp * sqrt((5 - 2) / 5) + mean_resp
           tempmat <- rbind(tempmat, vect)
         }
       }
@@ -115,12 +119,12 @@ toxbootReplicates <- function(datchemval,
 
     #Make data frame with number of columns of sampled values equal to replicates
     tempmat <- c()
-    for (conc in datchemstat[,logc]){   #REMOVE SORT AND UNIQUE?
+    for (conc in datchemstat[, logc]){   #REMOVE SORT AND UNIQUE?
       number_measurements <- datchemstat[logc == conc, number_measurements]
-      resp_vect <- datchemval[logc == conc, resp] #gets the measured responses at this concentration
+      resp_vect <- datchemval_copy[logc == conc, resp] #gets the measured responses at this concentration
       if(number_measurements > 1){
         for (numpoint in 1:number_measurements){
-          vect <- sample(resp_vect, replicates, replace=T)
+          vect <- sample(resp_vect, replicates, replace = TRUE)
           tempmat <- rbind(tempmat, vect)
         }
       }
@@ -141,21 +145,21 @@ toxbootReplicates <- function(datchemval,
     #on measured point and stdev = bmad (bmad already multiplied by 1.4826 within mad() function)
     #also pdf www.anawida.de/teach/SS12/compStat/Boots/smoothboot/smoothboot.pdf
     tempmat <- c()
-    for (conc in datchemstat[,logc]){   #REMOVE SORT AND UNIQUE?
+    for (conc in datchemstat[, logc]){   #REMOVE SORT AND UNIQUE?
       number_measurements <- datchemstat[logc == conc, number_measurements]
-      resp_vect <- datchemval[logc == conc, resp] #gets the measured responses at this concentration
+      resp_vect <- datchemval_copy[logc == conc, resp] #gets the measured responses at this concentration
 
 
       if(number_measurements > 1){
         for (numpoint in 1:number_measurements){
-          vect <- sample(resp_vect, replicates, replace=T) +
-                  rnorm(n = replicates, mean=0, sd = bmad)
+          vect <- sample(resp_vect, replicates, replace = TRUE) +
+                  rnorm(n = replicates, mean = 0, sd = bmad)
           tempmat <- rbind(tempmat, vect)
         }
       }
       else{
         vect <- resp_vect + #This is necessary when only one dose, as sample will do 1:X if length of X == 1
-          rnorm(n = replicates, mean=0, sd = bmad)
+          rnorm(n = replicates, mean = 0, sd = bmad)
         tempmat <- rbind(tempmat, vect)
 
       }
@@ -164,27 +168,29 @@ toxbootReplicates <- function(datchemval,
 
   if(boot_method == 'residuals_hill'){
     #Get parameters from pipeline fit with actual points
-    normalfit <- tcplFit(datchemval$logc, datchemval$resp, datchemval$bmad)#Fit the input data as usual, to compare
+    normalfit <- tcplFit(datchemval_copy$logc,
+                         datchemval_copy$resp,
+                         datchemval_copy$bmad)#Fit the input data as usual, to compare
     normalfit_hill_ga <- normalfit$hill_ga
     normalfit_hill_tp <- normalfit$hill_tp
     normalfit_hill_gw <- normalfit$hill_gw
 
     #Get vector of residuals for each measured point
-    datchemval[,fitval := hill_curve(hill_tp = normalfit_hill_tp,
-                                     hill_ga = normalfit_hill_ga,
-                                     hill_gw = normalfit_hill_gw,
-                                     lconc = logc)]
-    datchemval[,residual := resp - fitval]
+    datchemval_copy[, fitval := hill_curve(hill_tp = normalfit_hill_tp,
+                                           hill_ga = normalfit_hill_ga,
+                                           hill_gw = normalfit_hill_gw,
+                                           lconc = logc)]
+    datchemval_copy[, residual := resp - fitval]
     #now, column residual lists the residuals and
     #column fitval are the values from the pipeline fit at measured concentrations
 
     #Currently issue for those that aren't hits, presumably NAs being put in for fitval or residual
     #for now, set these to 0, but will need to have better way of handling this.
-    datchemval[is.na(residual) , residual := 0]
+    datchemval_copy[is.na(residual), residual := 0]
 
     #
     tempmat <- c()
-    for (conc in datchemval[,logc]){   #removed sort, using setkey before calling tcplBootReplicates now so already sorted
+    for (conc in datchemval_copy[, logc]){
       fitval <- hill_curve(hill_tp = normalfit_hill_tp,
                            hill_ga = normalfit_hill_ga,
                            hill_gw = normalfit_hill_gw,
@@ -193,7 +199,7 @@ toxbootReplicates <- function(datchemval,
       if (is.na(fitval)){
         fitval <- 0
       }
-      vect <- fitval + sample(datchemval[,residual], replicates, replace=T)
+      vect <- fitval + sample(datchemval_copy[, residual], replicates, replace = TRUE)
       tempmat <- rbind(tempmat, vect)
     }
 
@@ -208,44 +214,48 @@ toxbootReplicates <- function(datchemval,
     #Borrows a lot of code from 'resampling'
 
     #Get parameters from pipeline fit with actual points
-    normalfit <- tcplFit(datchemval$logc, datchemval$resp, datchemval$bmad)#Fit the input data as usual, to compare
+    normalfit <- tcplFit(datchemval_copy$logc,
+                         datchemval_copy$resp,
+                         datchemval_copy$bmad)#Fit the input data as usual, to compare
     normalfit_hill_ga <- normalfit$hill_ga
     normalfit_hill_tp <- normalfit$hill_tp
     normalfit_hill_gw <- normalfit$hill_gw
 
     #Get vector of residuals for each measured point
-    datchemval[,fitval := hill_curve(hill_tp = normalfit_hill_tp,
-                                     hill_ga = normalfit_hill_ga,
-                                     hill_gw = normalfit_hill_gw,
-                                     lconc = logc)]
-    datchemval[,residual := fitval - resp]
+    datchemval_copy[, fitval := hill_curve(hill_tp = normalfit_hill_tp,
+                                           hill_ga = normalfit_hill_ga,
+                                           hill_gw = normalfit_hill_gw,
+                                           lconc = logc)]
+    datchemval_copy[, residual := fitval - resp]
     #now, column residual lists the residuals and
     #column fitval are the values from the pipeline fit at measured concentrations
 
     #Currently issue for those that aren't hits, presumably NAs being put in for fitval or residual
     #for now, set these to 0, but will need to have better way of handling this.
-    datchemval[is.na(residual) , residual := 0]
+    datchemval_copy[is.na(residual), residual := 0]
 
     ###
     #I want to be able to apply the for loop before over each row, and have access to both fitval and the residual
-    #since concs are repeated, I can't reference the row by them, such as datchemval[logc==conc,fitval], as this
+    #since concs are repeated, I can't reference the row by them, such as datchemval_copy[logc==conc,fitval], as this
     #would return more than 1
     #best option for now seems to be to make a column of 1:nrow
-    datchemval[,index:=c(1:nrow(datchemval))]
+    datchemval_copy[, index := c(1:nrow(datchemval_copy))]
     #
     tempmat <- c()
-    for (rowindex in datchemval[,index]){
-      fitval <- datchemval[index==rowindex, fitval]
-      residual <- datchemval[index==rowindex, residual]
+    for (rowindex in datchemval_copy[, index]){
+      fitval <- datchemval_copy[index == rowindex, fitval]
+      residual <- datchemval_copy[index == rowindex, residual]
 
-      vect <- fitval + residual*rnorm(n = replicates, mean=0, sd = 1)
+      vect <- fitval + residual * rnorm(n = replicates, mean = 0, sd = 1)
       tempmat <- rbind(tempmat, vect)
     }
   } #end method 'wild_hill'
 
   if(boot_method == 'residuals_gnls'){
     #Get parameters from pipeline fit with actual points
-    normalfit <- tcplFit(datchemval$logc, datchemval$resp, datchemval$bmad)#Fit the input data as usual, to compare
+    normalfit <- tcplFit(datchemval_copy$logc,
+                         datchemval_copy$resp,
+                         datchemval_copy$bmad)
     normalfit_gnls_ga <- normalfit$gnls_ga
     normalfit_gnls_tp <- normalfit$gnls_tp
     normalfit_gnls_gw <- normalfit$gnls_gw
@@ -253,34 +263,34 @@ toxbootReplicates <- function(datchemval,
     normalfit_gnls_lw <- normalfit$gnls_lw
 
     #Get vector of residuals for each measured point
-    datchemval[,fitval := gnls_curve(top = normalfit_gnls_tp,
-                                     ga = normalfit_gnls_ga,
-                                     gw = normalfit_gnls_gw,
-                                     la = normalfit_gnls_la,
-                                     lw = normalfit_gnls_lw,
-                                     lconc = logc)]
-    datchemval[,residual := resp - fitval]
+    datchemval_copy[, fitval := gnls_curve(top = normalfit_gnls_tp,
+                                           ga  = normalfit_gnls_ga,
+                                           gw  = normalfit_gnls_gw,
+                                           la  = normalfit_gnls_la,
+                                           lw  = normalfit_gnls_lw,
+                                           lconc = logc)]
+    datchemval_copy[, residual := resp - fitval]
     #now, column residual lists the residuals and
     #column fitval are the values from the pipeline fit at measured concentrations
 
     #Currently issue for those that aren't hits, presumably NAs being put in for fitval or residual
     #for now, set these to 0, but will need to have better way of handling this.
-    datchemval[is.na(residual) , residual := 0]
+    datchemval_copy[is.na(residual), residual := 0]
 
     #
     tempmat <- c()
-    for (conc in datchemval[,logc]){   #removed sort, using setkey before calling tcplBootReplicates now so already sorted
+    for (conc in datchemval_copy[, logc]){   #removed sort, using setkey before calling tcplBootReplicates now so already sorted
       fitval <- gnls_curve(top = normalfit_gnls_tp,
-                           ga = normalfit_gnls_ga,
-                           gw = normalfit_gnls_gw,
-                           la = normalfit_gnls_la,
-                           lw = normalfit_gnls_lw,
+                           ga  = normalfit_gnls_ga,
+                           gw  = normalfit_gnls_gw,
+                           la  = normalfit_gnls_la,
+                           lw  = normalfit_gnls_lw,
                            lconc = conc)
       #like above note, if fitval is NA, set to 0 to avoid error, but figure out better way of handling this
       if (is.na(fitval)){
         fitval <- 0
       }
-      vect <- fitval + sample(datchemval[,residual], replicates, replace=T)
+      vect <- fitval + sample(datchemval_copy[, residual], replicates, replace = TRUE)
       tempmat <- rbind(tempmat, vect)
     }
 
@@ -295,7 +305,9 @@ toxbootReplicates <- function(datchemval,
     #Borrows a lot of code from 'resampling'
 
     #Get parameters from pipeline fit with actual points
-    normalfit <- tcplFit(datchemval$logc, datchemval$resp, datchemval$bmad)#Fit the input data as usual, to compare
+    normalfit <- tcplFit(datchemval_copy$logc,
+                         datchemval_copy$resp,
+                         datchemval_copy$bmad)#Fit the input data as usual, to compare
     normalfit_gnls_ga <- normalfit$gnls_ga
     normalfit_gnls_tp <- normalfit$gnls_tp
     normalfit_gnls_gw <- normalfit$gnls_gw
@@ -303,33 +315,33 @@ toxbootReplicates <- function(datchemval,
     normalfit_gnls_lw <- normalfit$gnls_lw
 
     #Get vector of residuals for each measured point
-    datchemval[,fitval := gnls_curve(top = normalfit_gnls_tp,
-                                     ga = normalfit_gnls_ga,
-                                     gw = normalfit_gnls_gw,
-                                     la = normalfit_gnls_la,
-                                     lw = normalfit_gnls_lw,
-                                     lconc = logc)]
-    datchemval[,residual := fitval - resp]
+    datchemval_copy[,fitval := gnls_curve(top = normalfit_gnls_tp,
+                                          ga  = normalfit_gnls_ga,
+                                          gw  = normalfit_gnls_gw,
+                                          la  = normalfit_gnls_la,
+                                          lw  = normalfit_gnls_lw,
+                                          lconc = logc)]
+    datchemval_copy[,residual := fitval - resp]
     #now, column residual lists the residuals and
     #column fitval are the values from the pipeline fit at measured concentrations
 
     #Currently issue for those that aren't hits, presumably NAs being put in for fitval or residual
     #for now, set these to 0, but will need to have better way of handling this.
-    datchemval[is.na(residual) , residual := 0]
+    datchemval_copy[is.na(residual), residual := 0]
 
     ###
     #I want to be able to apply the for loop before over each row, and have access to both fitval and the residual
-    #since concs are repeated, I can't reference the row by them, such as datchemval[logc==conc,fitval], as this
+    #since concs are repeated, I can't reference the row by them, such as datchemval_copy[logc==conc,fitval], as this
     #would return more than 1
     #best option for now seems to be to make a column of 1:nrow
-    datchemval[,index:=c(1:nrow(datchemval))]
+    datchemval_copy[, index := c(1:nrow(datchemval_copy))]
     #
     tempmat <- c()
-    for (rowindex in datchemval[,index]){
-      fitval <- datchemval[index==rowindex, fitval]
-      residual <- datchemval[index==rowindex, residual]
+    for (rowindex in datchemval_copy[, index]){
+      fitval <- datchemval_copy[index == rowindex, fitval]
+      residual <- datchemval_copy[index == rowindex, residual]
 
-      vect <- fitval + residual*rnorm(n = replicates, mean=0, sd = 1)
+      vect <- fitval + residual * rnorm(n = replicates, mean = 0, sd = 1)
       tempmat <- rbind(tempmat, vect)
     }
   } #end method 'wild_gnls'
