@@ -110,13 +110,13 @@ test_that("MySQL destination works", {
   dat <- rbindlist(list)
 
   set.seed(1234)
-  lapply(m4ids,
-         toxboot,
-         dat = erl3data,
-         boot_method = "smooth",
-         destination = "mysql",
-         replicates = 2,
-         table_name = "testthat")
+  catch <- lapply(m4ids,
+                  toxboot,
+                  dat = erl3data,
+                  boot_method = "smooth",
+                  destination = "mysql",
+                  replicates = 2,
+                  table_name = "testthat")
 
   dat_fetch <- toxbootGetMySQLFields(table = "testthat")
 
@@ -126,6 +126,17 @@ test_that("MySQL destination works", {
   setcolorder(dat_mysql, names(dat_memory))
 
   expect_equal(dat_memory, dat_mysql, tolerance = .0000001, scale = 1)
+
+  #make sure query works with select and return options
+
+  dat_query <- toxbootGetMySQLFields(table = "testthat",
+                                     m4id = m4ids[1:10],
+                                     fields = c("m4id", "hill_ga"))
+  expect_equal(dat_memory[m4id %in% m4ids[1:10],
+                          list(m4id, hill_ga)],
+               dat_query,
+               tolerance = .0000001,
+               scale = 1)
 
   #cleanup database
 
