@@ -100,18 +100,23 @@ toxboot <- function(dat,
 
 
   datchemval <- dat[m4id == this_m4id, list(logc, resp, bmad)]
-  setkey(datchemval, logc) #sorts into correct order, don't need to sort anymore
-  logc_vect <- datchemval[,logc] #removed sort, should not be necessary anymore
+  setkey(datchemval, logc) #sorts into correct order
+  logc_vect <- datchemval[, logc]
 
   boot_replicates <- toxbootReplicates(datchemval = datchemval,
                                        boot_method = boot_method,
-                                       replicates=replicates)
+                                       replicates = replicates)
 
 
   datchemsample <- boot_replicates$datchemsample
   tempmat <- boot_replicates$tempmat
 
-  temp2 <- sapply(datchemsample, tcplFit, logc = logc_vect, bmad = datchemval$bmad[1]) #bmad is same for all, so just need to call first and it will fill in to right length
+  # Fit each bootstrap sample using tcplFit
+  temp2 <- sapply(datchemsample,
+                  tcplFit,
+                  logc = logc_vect,
+                  bmad = datchemval$bmad[1])
+
   datchemresult <- as.data.table(t(temp2))
   setnames(datchemresult, fitpars)
   datchemresult <- sapply(datchemresult, as.numeric)
