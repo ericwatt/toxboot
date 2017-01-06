@@ -21,8 +21,8 @@ Imports:
 Suggests:
     DBI,
     RMySQL,
-    mongolite,
-    jsonlite,
+    mongolite (>= 0.9.0),
+    jsonlite (>= 1.1),
     ggplot2,
     knitr,
     parallel,

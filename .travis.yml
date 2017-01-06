@@ -15,10 +15,6 @@ r:
   - release
   - devel
 
-r_github_packages:
-  - jeroenooms/mongolite
-  - jeroenooms/jsonlite
-
 sudo: false
 cache: packages
 
