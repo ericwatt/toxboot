@@ -6,12 +6,19 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("logc", "resp",
 #' \code{toxboot} is the main function that performs the bootstrap sampling,
 #'   fitting, and writing to the database
 #'
-#' @param dat A data.table. Required columns are: logc: numeric, contains
-#'   concentrations resp: numeric, normalized response values paired with
-#'   concentrations m3id: numeric, value unique to each row corresponding to an
-#'   individual concentration and response m4id: numeric, value unique to an
-#'   aeid/spid pair. Multiple m3ids per m4id aeid: numeric, assay id spid:
-#'   character, sample ID bmad: numeric, baseline mad. Unique to an aeid.
+#' @param dat A data.table typically generated with
+#'   \code{\link{toxbootQueryToxCast}}. Required columns are:
+#'     \itemize{
+#'       \item logc: numeric, contains concentrations
+#'       \item resp: numeric, normalized response values
+#'       \item m3id: numeric, value unique to each row corresponding to an
+#'                   individual concentration and response
+#'       \item m4id: numeric, value unique to an aeid/spid pair. Multiple
+#'                   m3ids per m4id
+#'       \item aeid: numeric, assay id
+#'       \item spid: character, sample ID
+#'       \item bmad: numeric, baseline mad. Unique to an aeid.
+#'     }
 #' @param m4id numeric length 1, m4id to bootstrap. Choice of m4id will
 #'   determine which rows are selected, and therefore the values of logc, resp,
 #'   m3id, aeid, spid, and bmad.
@@ -35,32 +42,40 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("logc", "resp",
 #'   There are multiple options for saving the results, based on the value of
 #'   \code{destination}.
 #'
-#'   \itemize{
+#'   \describe{
 #'
-#'   \item mongo : If \code{destination} is set to "mongo" a connection to the
+#'   \item{mongo}{If \code{destination} is set to "mongo" a connection to the
 #'   mongo database will be created and the results will be written using the
 #'   \code{mongolite} package. The connection will be established using the
 #'   parameters retrieved using \code{\link{toxbootConfList}} by the function
 #'   \code{\link{toxbootConnectMongo}}. See the documentation on these functions
 #'   as well as \code{\link{toxbootConf}} for how to properly setup the MongoDB
 #'   environment. For large scale screening of uncertainty parameters it is
-#'   recommended that MongoDB be used for performance and scaling.
+#'   recommended that MongoDB be used for performance and scaling.}
 #'
-#'   \item mysql :
+#'   \item{mysql}{Authentication and connection parameters are handled using a
+#'   MySQL configuration file as recommended by the `RMySQL` package. This file
+#'   can be used to maintain all of your MySQL parameters, which can then be
+#'   accessed by name.
 #'
-#'   \item file : A directory \code{toxboot/} will be created. A csv file for
-#'   each m4id will be created with name set to the value of m4id. The format of
-#'   the file will be tabular with one row for each bootstrap replicate.
+#'   If the table \code{toxboot} has not already been setup or has been setup
+#'   incorrectly, execute function \code{\link{toxbootMysqlCreateTable}} which
+#'   will drop the table if it exists and create a new table with the correct
+#'   columns.}
+#'
+#'   \item{file}{A directory \code{toxboot/} will be created. A csv file for
+#'   each m4id will be created with name set to the value of m4id. The format
+#'   of the file will be tabular with one row for each bootstrap replicate.
 #'   Subsequent runs will be appended onto the file. This way further bootstrap
 #'   results can be created without loss of previous computational work. Note
 #'   that the file size can get quite large if many curves are run. With 1000
-#'   replicates the file size will typically range from 300 to 600 KB per m4id.
+#'   replicates the file size will typically range from 300 to 600 KB per m4id.}
 #'
-#'   \item memory : Results will be returned as a single data.table. This is a
+#'   \item{memory}{Results will be returned as a single data.table. This is a
 #'   reasonable option for checking a few curves or even an entire assay with
 #'   1000 replicates if a suitable amount of memory is available. Care must be
-#'   taken as the resulting data.table can become multiple GB in memory } The
-#'   fitted results are assembled and written to MongoDB using \code{mongolite}.
+#'   taken as the resulting data.table can become multiple GB in memory.}
+#'   }
 #'
 #' @seealso \code{\link{toxbootReplicates}}
 #'
