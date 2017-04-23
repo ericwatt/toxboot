@@ -13,9 +13,9 @@ toxbootConnectMongo <- function(){
 
   #Set log level to 3 to reduce messages
 
-  mongologval <- mongolite::mongo_log_level()
+  mongologval <- mongolite::mongo_options()$log_level
 
-  mongolite::mongo_log_level(3)
+  mongolite::mongo_options(log_level = 3)
 
   #Connect to database, confirm connection
   toxget <- toxbootConfList(show.pass = TRUE)
@@ -61,7 +61,7 @@ toxbootConnectMongo <- function(){
 
   #Set mongo log value back to what it was
 
-  mongolite::mongo_log_level(mongo_log_convert(mongologval))
+  mongolite::mongo_options(log_level = mongo_log_convert(mongologval))
 
   return(mongo)
 }
