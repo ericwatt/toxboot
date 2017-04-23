@@ -1,5 +1,6 @@
+
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-[![Travis-CI Build Status](https://travis-ci.org/ericwatt/toxboot.svg?branch=master)](https://travis-ci.org/ericwatt/toxboot) [![Coverage Status](https://img.shields.io/codecov/c/github/ericwatt/toxboot/master.svg)](https://codecov.io/github/ericwatt/toxboot?branch=master) [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/toxboot)](https://cran.r-project.org/package=toxboot) [![DOI](https://zenodo.org/badge/18526/ericwatt/toxboot.svg)](https://zenodo.org/badge/latestdoi/18526/ericwatt/toxboot)
+[![Travis-CI Build Status](https://travis-ci.org/ericwatt/toxboot.svg?branch=master)](https://travis-ci.org/ericwatt/toxboot) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/ericwatt/toxboot?branch=master&svg=true)](https://ci.appveyor.com/project/ericwatt/toxboot) [![Coverage Status](https://img.shields.io/codecov/c/github/ericwatt/toxboot/master.svg)](https://codecov.io/github/ericwatt/toxboot?branch=master) [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/toxboot)](https://cran.r-project.org/package=toxboot) [![DOI](https://zenodo.org/badge/18526/ericwatt/toxboot.svg)](https://zenodo.org/badge/latestdoi/18526/ericwatt/toxboot)
 
 toxboot
 =======
