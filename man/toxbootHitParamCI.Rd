@@ -38,4 +38,3 @@ Based upon mc5 processing in \code{tcpl}.
   set to the corresponding values in the winning model. Else, these
   parameters are set to NA.
 }
-

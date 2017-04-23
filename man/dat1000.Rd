@@ -14,4 +14,3 @@ erl3data dataset. Used as an example for plotting in the vignette, which
 shows the code used to generate the data.
 }
 \keyword{datasets}
-

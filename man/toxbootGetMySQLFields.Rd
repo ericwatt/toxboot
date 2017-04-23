@@ -39,4 +39,3 @@ toxbootGetMySQLFields(m4id = 1288500, replicates = 10, fields = c("boot_method",
 }
 
 }
-

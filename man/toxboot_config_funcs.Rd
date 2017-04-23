@@ -3,10 +3,10 @@
 \name{Toxboot configuration functions}
 \alias{Toxboot configuration functions}
 \alias{toxbootConf}
-\alias{toxbootConfList}
-\alias{toxbootConfLoad}
-\alias{toxbootConfReset}
 \alias{toxbootConfSave}
+\alias{toxbootConfReset}
+\alias{toxbootConfLoad}
+\alias{toxbootConfList}
 \title{Functions for configuring the toxboot package}
 \usage{
 toxbootConf(mongo_host = NULL, collection = NULL, user = NULL,
@@ -74,4 +74,3 @@ Parameter settings are stored in two places. Long term storage on
   parameters to NA. This is used to remove any user information from the
   file.
 }
-

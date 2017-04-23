@@ -33,4 +33,3 @@ equation resulting from a given fit.
 \examples{
 gnls_curve(top = 100, ga = 0.5, gw = 1, la = 1.5, lw = 8, lconc = 0)
 }
-

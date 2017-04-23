@@ -31,4 +31,3 @@ fields = c("hill_ga", "gnls_ga"))
 }
 
 }
-

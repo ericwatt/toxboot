@@ -45,4 +45,3 @@ The fitted results are assembled
 \seealso{
 \code{\link{toxboot}}
 }
-

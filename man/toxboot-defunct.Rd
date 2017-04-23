@@ -19,4 +19,3 @@ the replacements indicated below:
     \item{toxbootSetOpts: \code{\link{toxbootConf}}}
   }
 }
-

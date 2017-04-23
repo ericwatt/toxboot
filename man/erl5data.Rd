@@ -20,4 +20,3 @@ also useful to compare min/med/max bootstrap results to the point estimate in
 the ToxCast pipeline value.
 }
 \keyword{datasets}
-

@@ -26,4 +26,3 @@ the correct length and that NAs are in the correct positions.
 \examples{
 \dontrun{nullToNA(list(1,5,'a', NULL, NA, 4))}
 }
-

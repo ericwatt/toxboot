@@ -21,4 +21,3 @@ projection, a named list where names are the fields to return in the
 \code{toxbootProjectionBuild} builds a list that determined which fields
 are returned.
 }
-

@@ -24,4 +24,3 @@ Accepted methods are "case", "smooth", "residuals_hill", "wild_hill",
 \seealso{
 \code{\link{toxboot}}
 }
-

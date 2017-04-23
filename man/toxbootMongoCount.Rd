@@ -19,4 +19,3 @@ num_results, an integer equal to the number of documents that match the query.
 \description{
 \code{toxbootMongoCount} returns the number of objects that match the query.
 }
-

@@ -18,4 +18,3 @@ will be written to by \code{toxboot} and \code{toxbootmc}.
 Caution. This function will delete the current toxboot table if it
   exists. Still need to add some safeguards.
 }
-

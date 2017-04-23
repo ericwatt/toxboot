@@ -25,4 +25,3 @@ Because \code{bmad} is calculated for all chemicals in the assay,
   The assumption is that \code{\link{tcplConf}} has been setup to pull data
   from the correct database.
 }
-

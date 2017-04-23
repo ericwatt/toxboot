@@ -29,4 +29,3 @@ equation resulting from a given fit.
 \examples{
 hill_curve(hill_tp = 100, hill_ga = 0.5, hill_gw = 1, lconc = 0)
 }
-

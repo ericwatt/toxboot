@@ -93,4 +93,3 @@ used \code{\link{toxbootMysqlCreateTable}}}
 \seealso{
 \code{\link{toxbootReplicates}}
 }
-

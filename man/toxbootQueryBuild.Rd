@@ -15,4 +15,3 @@ query, a json object used for a query
 \description{
 \code{toxbootQueryBuild} imports toxboot query from list of input parameters.
 }
-

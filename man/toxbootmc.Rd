@@ -44,4 +44,3 @@ The function \code{\link{toxboot}} takes performs bootstrap analysis
   simplify setup with common defaults and to provide multicore support
   through the use of \code{\link{mclapply}}.
 }
-

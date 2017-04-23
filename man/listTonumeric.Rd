@@ -27,4 +27,3 @@ converts the list back to a numeric type.
 \examples{
 \dontrun{class(listTonumeric(list(1,2,3,4,NA,6,7)))}
 }
-

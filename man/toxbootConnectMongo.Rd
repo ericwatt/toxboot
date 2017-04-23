@@ -13,4 +13,3 @@ mongo, a mongo connection object.
 \code{toxbootConnectMongo} imports toxboot options and creates the connection
 to the mongoDB.
 }
-
