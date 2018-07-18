@@ -132,7 +132,7 @@ toxboot <- function(dat,
                   logc = logc_vect,
                   bmad = datchemval$bmad[1])
 
-  datchemresult <- as.data.table(t(temp2))
+  datchemresult <- as.data.table(t(temp2))[,1:44]
   setnames(datchemresult, fitpars)
   datchemresult <- sapply(datchemresult, as.numeric)
   datchemresult <- as.data.table(datchemresult)
