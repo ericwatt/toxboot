@@ -229,7 +229,7 @@ toxbootGetMongoFields <- function(fields, ...){
          Query:\n", query)
   }
 
-  result_list <- mongo$iterate(query = query, fields = projection)$batch()
+  result_list <- mongo$iterate(query = query, fields = projection)$batch(num_results)
 
   rm(mongo)
 
