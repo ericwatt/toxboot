@@ -9,7 +9,7 @@
 #' @param hill_tp Numeric, hill top parameter.
 #' @param hill_ga Numeric, hill AC50 parameter.
 #' @param hill_gw Numeric, hill coefficient parameter.
-#' @param lconc   Numeric, concentration (in log uM) to calcuate the response.
+#' @param lconc   Numeric, concentration (in log uM) to calculate the response.
 #' @return y Numeric, the calculated response value at lconc.
 #' @examples
 #' hill_curve(hill_tp = 100, hill_ga = 0.5, hill_gw = 1, lconc = 0)
@@ -31,7 +31,7 @@ hill_curve <- function(hill_tp, hill_ga, hill_gw, lconc){
 #' @param gw      Numeric, gnls gain coefficient parameter.
 #' @param la      Numeric, gnls loss AC50 parameter.
 #' @param lw      Numeric, gnls loss coefficient parameter.
-#' @param lconc   Numeric, concentration (in log uM) to calcuate the response.
+#' @param lconc   Numeric, concentration (in log uM) to calculate the response.
 #' @return y Numeric, the calculated response value at lconc.
 #' @examples
 #' gnls_curve(top = 100, ga = 0.5, gw = 1, la = 1.5, lw = 8, lconc = 0)

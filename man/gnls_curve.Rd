@@ -17,7 +17,7 @@ gnls_curve(top, ga, gw, la, lw, lconc)
 
 \item{lw}{Numeric, gnls loss coefficient parameter.}
 
-\item{lconc}{Numeric, concentration (in log uM) to calcuate the response.}
+\item{lconc}{Numeric, concentration (in log uM) to calculate the response.}
 }
 \value{
 y Numeric, the calculated response value at lconc.

@@ -6,9 +6,11 @@ output:
   rmarkdown::html_vignette:
     fig_width: 4
 vignette: >
+  %\VignetteEncoding{UTF-8}
   %\VignetteIndexEntry{Toxboot: A Field Guide}
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+editor_options: 
+  chunk_output_type: console
 ---
 
 Toxboot is a package designed to quantify uncertainty in concentration response curves observed in high throughput screening. 
@@ -37,7 +39,7 @@ library(pander)
 ## Input Data Format
 
 Once a working version of the tcpl database and package is setup, data preparation for bootstrap resampling is handled by the function `toxbootQueryToxCast`. 
-Simply pass this function a vector assay endpoint id (aeid) values and it will query the toxcast database to get all of the concentration response values for the aeids, merge the corresponding parameter fid id (m4id) values, and calculate a basedline median absolution deviation (bmad).
+Simply pass this function a vector assay endpoint id (aeid) values and it will query the toxcast database to get all of the concentration response values for the aeids, merge the corresponding parameter fit id (m4id) values, and calculate a baseline median absolution deviation (bmad).
 The data will then be in a format ready for bootstrapping.
 An included dataset `erl3data` used in examples throughout this vignette was generated from the October 2015 tcpl database `prod_external_invitrodb_v2` using `toxbootQueryToxCast` for a select group of aeids and m4ids using the following code.
 A subset of m4ids was selected in this case to reduce the datasize included with the package. 
@@ -65,7 +67,7 @@ erl3data <- dat[m4id %in% m4ids]
 
 Once the data is formatted correctly using `toxbootQueryToxCast` it is ready to be bootstrapped. 
 The function `toxbootmc` is the highest level function to calculate the bootstrapping, and is explored in the subsections below.
-Under the hood, this function does some filtering of m4ids if writting to mongoDB and then runs the function `toxboot` using mclapply so that the bootstrapping will be multicore.
+Under the hood, this function does some filtering of m4ids if writing to mongoDB and then runs the function `toxboot` using mclapply so that the bootstrapping will be multicore.
 Note that the parameter `cores` which will be passed as `mc.cores` to the `mclapply` function, specifies the number of cores to use and must be set to 1 if running in a windows environment.
 
 The steps within `toxboot` are:
@@ -274,7 +276,7 @@ ggplot(erl3data[m4id == 9057756],
 The blue dashed line is the gnls model which fits exactly over the solid red line corresponding to the hill model.
 
 We can then look at the results from bootstrap resampling to understand the variability in the `modl_ga` parameter.
-Using the dat_tb dataset calculated above, which had used 10 bootstap resamples:
+Using the dat_tb dataset calculated above, which had used 10 bootstrap resamples:
 
 ```{r 9057756}
 ggplot(dat_tb[m4id == 9057756], 
@@ -331,7 +333,7 @@ ggplot(dat10000,
 
 Both the solid black line corresponding to 10,000 replicates and the dashed blue line for 1,000 replicates are clearly smoother than the results from only 10 resamples (red dotdash line). 
 The difference between 1,000 and 10,000 is much less significant.
-Comparisons like this plot allow the optimimum number of bootstrap resamples to be selected. 
+Comparisons like this plot allow the optimum number of bootstrap resamples to be selected. 
 In this case, since 1,000 and 10,000 have similar distributions, there is no need to calculate 10,000 replicates if the goal is to calculate a 95% confidence interval.
 Choosing 10 replicates, however, would lead to a different result even at a 50% confidence interval.
 

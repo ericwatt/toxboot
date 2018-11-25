@@ -276,7 +276,7 @@ toxbootGetMongoFields <- function(fields, ...){
 #' are returned.
 #'
 #' @param fields  string vector, fields to return.
-#' @param id_val integer 0L or 1L. By default 0L, which will supress Object_ID
+#' @param id_val integer 0L or 1L. By default 0L, which will suppress Object_ID
 #'   from the projection. This unique ID is often not needed. Can be set to 1L
 #'   to include in projection.
 #'
