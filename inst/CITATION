@@ -1,0 +1,23 @@
+citHeader("To cite toxboot in publications use:")
+
+citEntry(
+  entry = "Article",
+	title = "Uncertainty quantification in {ToxCast} high throughput screening",
+	volume = "13",
+	issn = "1932-6203",
+	url = "http://dx.plos.org/10.1371/journal.pone.0196963",
+	doi = "10.1371/journal.pone.0196963",
+	language = "en",
+	number = "7",
+	urldate = "2018-07-25",
+	journal = "PLoS ONE",
+	author = "Eric D. Watt and Richard S. Judson",
+	editor = "Jonathan H. Freedman",
+	month = "jul",
+	year = "2018",
+	pages = "e0196963",
+
+	textVersion = paste("Watt, E. D. & Judson, R. S.",
+	                    "Uncertainty quantification in ToxCast high throughput screening.",
+	                    "PLoS ONE 13, e0196963 (2018).")
+)

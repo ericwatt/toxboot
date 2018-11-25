@@ -4,8 +4,8 @@
 \alias{toxbootWriteMongo}
 \title{Write bootstrap results to mongoDB}
 \usage{
-toxbootWriteMongo(dat, this_m4id, boot_method, replicates, logc_vect, starttime,
-  concvals, datchemresult, datsample)
+toxbootWriteMongo(dat, this_m4id, boot_method, replicates, logc_vect,
+  starttime, concvals, datchemresult, datsample)
 }
 \arguments{
 \item{dat}{A data.table. Required columns are: logc: numeric, contains

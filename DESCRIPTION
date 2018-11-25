@@ -1,8 +1,8 @@
 Package: toxboot
 Type: Package
 Title: Bootstrap Methods for 'ToxCast' High Throughput Screening Data
-Version: 0.1.2.9000
-Date: 2016-09-19
+Version: 0.2.0
+Date: 2018-11-24
 Authors@R: person(c("Eric", "D."), "Watt",
                   email = "eric@ericdwatt.com",
                   role = c("aut", "cre"))
@@ -32,4 +32,5 @@ Suggests:
     pander,
     covr
 VignetteBuilder: knitr
-RoxygenNote: 6.0.1
+Encoding: UTF-8
+RoxygenNote: 6.1.1
